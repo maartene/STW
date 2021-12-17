@@ -53,8 +53,9 @@ public struct Earth {
     /// how much does temperature change based on a change in carbon concentration in the atmosphere? Where a doubling of concentration increases the temperature by 3 degrees C.
     private func temperatureIncreaseForConcentration(newConcentration: Double, oldConcentration: Double) -> Double {
         let ratio = newConcentration / oldConcentration
-        let log = log2(Float(ratio))
-        return Double(log) * 3.0
+//        let log = log2(Float(ratio))
+        let log = log2(ratio)
+        return log * 3.0
     }
     
     /// Forecasts the expected temperature in the year, based on constant yearly emissions.

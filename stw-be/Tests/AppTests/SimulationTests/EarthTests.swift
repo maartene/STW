@@ -47,7 +47,7 @@ final class EarthTests: XCTestCase {
         for _ in earth.currentYear ..< forecastToYear {
             earth.tick(yearlyEmission: yearlyEmissions)
         }
-            
+        print(Earth.BASE_TEMPERATURE_2015, earth.currentTemperature)
         XCTAssertEqual(forecastToYear, earth.currentYear)
         XCTAssertEqual(forecastedTemp, earth.currentTemperature)
     }
