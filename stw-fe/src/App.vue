@@ -36,6 +36,9 @@ export default {
     loggedIn() {
       return this.earthID != "" && this.countryID != ""
     }
+  },
+  mounted() {
+    document.title = "Let's save the World"
   }
 }
 </script>

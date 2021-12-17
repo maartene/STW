@@ -10,6 +10,8 @@
         <li class="list-group-item">Net GDP: {{gameData.netGDP}}</li>
         <li class="list-group-item">Yearly emissions: {{gameData.yearlyEmissions}}</li>
     </ul>
+    <p class="my-3"></p>
+    <button class="btn btn-primary" v-on:click="refresh">Refresh</button>
 </template>
 
 <script>
@@ -31,17 +33,22 @@ export default {
     props: {
         countryID: String
     },
+    methods: {
+        refresh() {
+            axios.get(`http://localhost:8080/game/${this.countryID}/`)
+            .then(response => {
+                // JSON responses are automatically parsed.
+                console.log(response.data);
+                this.gameData = response.data;
+            })
+            .catch(e => {
+                this.errors.push(e);
+            })
+        }
+    },
     // Fetch game data when the component is created
     created() {
-        axios.get(`http://localhost:8080/game/${this.countryID}/`)
-        .then(response => {
-            // JSON responses are automatically parsed.
-            console.log(response.data);
-            this.gameData = response.data;
-        })
-        .catch(e => {
-            this.errors.push(e);
-        })
+        this.refresh();
     }
 }
 </script>
