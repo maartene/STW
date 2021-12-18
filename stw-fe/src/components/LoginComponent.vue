@@ -29,13 +29,13 @@ export default {
     methods: {
         login() {
             // to see wether we have valid data, we try to get the earth...
-            axios.get(`http://localhost:8080/earthModels/${this.earthID}/`)
+            axios.get(`${this.STW_API_ENDPOINT}/earthModels/${this.earthID}/`)
             .then(response => {
                 // JSON responses are parsed automatically
                 console.log(response.data);
 
                 // and country...
-                axios.get(`http://localhost:8080/countryModels/${this.countryID}`)
+                axios.get(`${this.STW_API_ENDPOINT}/countryModels/${this.countryID}`)
                 .then(response2 => {
                     console.log(response2.data);
                     if (response2.data.id == this.countryID) {

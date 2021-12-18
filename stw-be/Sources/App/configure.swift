@@ -21,11 +21,11 @@ public func configure(_ app: Application) throws {
     app.middleware.use(cors, at: .beginning)
     
     try app.databases.use(.mongo(
-        connectionString: Environment.get("DATABASE_URL") ?? "mongodb://localhost:27017/vapor_database"
+        connectionString: Environment.get("STW_BACKEND_DB_URL") ?? "mongodb://localhost:27017/vapor_database"
     ), as: .mongo)
     
     
-    let mongoDatabase = try MongoDatabase.lazyConnect(Environment.get("DATABASE_URL") ?? "mongodb://localhost:27017/vapor_database", on: app.eventLoopGroup.next())
+    let mongoDatabase = try MongoDatabase.lazyConnect(Environment.get("STW_BACKEND_DB_URL") ?? "mongodb://localhost:27017/vapor_database", on: app.eventLoopGroup.next())
     
     // Setup Indexes for the Job Schema for performance (Optional)
     try app.queues.setupMongo(using: mongoDatabase)
@@ -37,6 +37,9 @@ public func configure(_ app: Application) throws {
     try app.queues.startScheduledJobs()
     
     initializeDatabase(db: app.db)
+    
+    let port = Int(Environment.get("STW_BACKEND_PORT") ?? "8000") ?? 8000
+    app.http.server.configuration.port = port
     
     // register routes
     try routes(app)

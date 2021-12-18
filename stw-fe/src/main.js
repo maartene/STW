@@ -4,4 +4,7 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import { createApp } from 'vue'
 import App from './App.vue'
 
-createApp(App).mount('#app')
+const app = createApp(App)
+app.mount('#app')
+
+app.config.globalProperties.STW_API_ENDPOINT = process.env.VUE_APP_STW_API_URL || "http://localhost:8000"

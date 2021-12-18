@@ -35,7 +35,7 @@ export default {
     },
     methods: {
         refresh() {
-            axios.get(`http://localhost:8080/game/${this.countryID}/`)
+            axios.get(`${this.STW_API_ENDPOINT}/game/${this.countryID}/`)
             .then(response => {
                 // JSON responses are automatically parsed.
                 console.log(response.data);
