@@ -78,6 +78,35 @@ public struct Country {
         self.baseGDP = baseGDP
         self.population = population
     }
+    
+    
+    /// Execute a country command.
+    /// - Parameters:
+    ///   - command: the command to execute.
+    ///   - earth: the earth this command is executed in.
+    /// - Returns: an updated version of the country, with the effects of the command applied.
+    public func executeCommand(_ command: CountryCommand, in earth: Earth) -> (updatedCountry: Country, resultMessage: String) {
+        var updatedCountry = self
+        var resultMessage = ""
+        
+        /// add a case for each command (case) in `CountryCommand.swift`
+        switch command {
+        case .exampleCommand(let message):
+            resultMessage = "Received an example command with message: \(message)"
+        }
+        
+        print(resultMessage)
+        return (updatedCountry, resultMessage)
+    }
+    
+    /// An array of all commands available to this country.
+    public var availableCommands: [CountryCommand] {
+        [
+            .exampleCommand(message: "Hello!"),
+            .exampleCommand(message: "World"),
+            .exampleCommand(message: "from: \(name)")
+        ]
+    }
 }
 
 extension Country: Codable { }

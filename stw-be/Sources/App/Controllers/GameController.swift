@@ -15,6 +15,10 @@ struct GameController: RouteCollection {
         
         game.group(":countryModelID") { gameGroup in
             gameGroup.get(use: getFullData)
+            gameGroup.post(use: executeCommand)
+            gameGroup.group("commands") { commandGroup in
+                commandGroup.get(use: getAvailableCommands)
+            }
         }
     }
     
@@ -53,4 +57,38 @@ struct GameController: RouteCollection {
         
         return response
     }
+    
+    func getAvailableCommands(req: Request) async throws -> [CountryCommand] {
+        guard let countryModel = try await CountryModel.find(req.parameters.get("countryModelID"), on: req.db) else {
+            throw Abort(.notFound)
+        }
+        
+        return countryModel.country.availableCommands
+    }
+    
+    func executeCommand(req: Request) async throws -> String {
+        guard let countryModel = try await CountryModel.find(req.parameters.get("countryModelID"), on: req.db) else {
+            throw Abort(.notFound)
+        }
+        
+        guard let earthModel = try await EarthModel.find(countryModel.earthID, on: req.db) else {
+            throw Abort(.notFound)
+        }
+        
+        let command = try req.content.decode(CountryCommand.self)
+        
+        // We need to verify that the command that was send from the client is an actual command from the countries list of available commands. This is particularly relevant for commands with associated values that might be tampered with from the client side.
+        guard countryModel.country.availableCommands.contains(command) else {
+            throw Abort(.badRequest)
+        }
+        
+        let result = countryModel.country.executeCommand(command, in: earthModel.earth)
+        
+        countryModel.country = result.updatedCountry
+        try await countryModel.save(on: req.db)
+        
+        return result.resultMessage
+    }
 }
+
+extension CountryCommand: Content { }

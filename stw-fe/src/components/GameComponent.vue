@@ -11,6 +11,13 @@
         <li class="list-group-item">Yearly emissions: {{gameData.yearlyEmissions}}</li>
     </ul>
     <p class="my-3"></p>
+    <h1>Your command?</h1>
+    <ul class="list-group">
+        <li class="list-group-item" v-for="(command, index) in commands" :key="index">
+            <button class="btn btn-primary" v-on:click="sendCommand(command)">{{command}}</button></li>
+    </ul>
+    <h3 v-if="message != ''">{{message}}</h3>
+    <p class="my-3"></p>
     <button class="btn btn-primary" v-on:click="refresh">Refresh</button>
 </template>
 
@@ -27,7 +34,11 @@ export default {
                 yearlyEmissions: 0,
                 currentYear: 0,
                 currentTemperature: 0
-            }
+            },
+            commands: [
+                { name: "Foo" }
+            ],
+            message: ""
         }
     },
     props: {
@@ -42,6 +53,29 @@ export default {
                 this.gameData = response.data;
             })
             .catch(e => {
+                this.errors.push(e);
+            })
+
+            axios.get(`${this.STW_API_ENDPOINT}/game/${this.countryID}/commands/`)
+            .then(response => {
+                // JSON responses are automatically parsed.
+                console.log(response.data);
+                this.commands = response.data;
+            })
+            .catch(e => {
+                this.errors.push(e);
+            })
+        },
+
+        sendCommand(command) {
+            console.log(`Attempting to send command: ${command}`);
+            axios.post(`${this.STW_API_ENDPOINT}/game/${this.countryID}/`, command)
+            .then(response => {
+                // JSON responses are automatically parsed.
+                console.log(response.data);
+                this.message = response.data;
+            })
+            .catch( e => {
                 this.errors.push(e);
             })
         }
