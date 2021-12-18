@@ -15,15 +15,15 @@ The application consists of two parts:
 
 #### Linux:
 ```
-export STW_BACKEND_DB_URL="..."  // connection string to your MongoDB server.
-cd stw-be
-swift run
+# export STW_BACKEND_DB_URL="..."  // connection string to your MongoDB server.
+# cd stw-be
+# swift run
 ```
 
 #### MacOS:
 ```
-cd stw-be
-open Package.swift
+% cd stw-be
+% open Package.swift
 ```
 
 This opens XCode. Before running, please consider:
@@ -45,11 +45,13 @@ To run the front-end locally, you need `node.js` and `npm` installed.
 * Set the hostname and port where the backend API is running using environment variable `VUE_APP_STW_API_URL` (default: `http://localhost:8000`). 
 
 ## API endpoints
-* `/earthModels/` : lists all `EarthModels`. For debugging/testing purposes only
-* `/earthModels/[earthModel UUID]` : retrieves a specific `EarthModel` by it's ID (UUID)
-* `/countryModels/` : lists all CountryModels. For debugging/testing purposes only
-* `/countryModels/[countryModel UUID]` : retrieves a specific `CountryModel` by it's ID (UUID)
-* `/game/[countryModel UUID]` : retrieves all relevant data to display in the game.
+* `GET /earthModels/` : lists all `EarthModels`. For debugging/testing purposes only
+* `GET /earthModels/[earthModel UUID]` : retrieves a specific `EarthModel` by it's ID (UUID)
+* `GET /countryModels/` : lists all CountryModels. For debugging/testing purposes only
+* `GET /countryModels/[countryModel UUID]` : retrieves a specific `CountryModel` by it's ID (UUID)
+* `GET /game/[countryModel UUID]` : retrieves all relevant data to display in the game.
+* `GET /game/[countryModel UUID]/commands` : retrieves all commands the country can execute (at this time).
+* `POST /game/[countryModel UUID]/[command]` : sends a command to execute. Returns a message (string) indicating what happened.
 
 ## Playing the game
 Coming soon.
