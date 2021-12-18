@@ -16,6 +16,7 @@ struct GameController: RouteCollection {
         game.group(":countryModelID") { gameGroup in
             gameGroup.get(use: getFullData)
             gameGroup.post(use: executeCommand)
+            gameGroup.post("reverse", use: reverseCommand)
             gameGroup.group("commands") { commandGroup in
                 commandGroup.get(use: getAvailableCommands)
             }
@@ -58,12 +59,28 @@ struct GameController: RouteCollection {
         return response
     }
     
-    func getAvailableCommands(req: Request) async throws -> [CountryCommand] {
+    struct CommandInfo: Content {
+        let command: CountryCommand
+        let name: String
+        let commandEffectDescription: String
+        let isActive: Bool
+        
+        init(_ command: CountryCommand, isActive: Bool) {
+            self.command = command
+            self.name = command.name
+            self.commandEffectDescription = command.effectDescription
+            self.isActive = isActive
+        }
+    }
+    
+    func getAvailableCommands(req: Request) async throws -> [CommandInfo] {
         guard let countryModel = try await CountryModel.find(req.parameters.get("countryModelID"), on: req.db) else {
             throw Abort(.notFound)
         }
         
-        return countryModel.country.availableCommands
+        return countryModel.country.availableCommands.map { command in
+            CommandInfo(command, isActive: countryModel.country.activeCommands.contains(command))
+        }
     }
     
     func executeCommand(req: Request) async throws -> String {
@@ -89,6 +106,28 @@ struct GameController: RouteCollection {
         
         return result.resultMessage
     }
+    
+    func reverseCommand(req: Request) async throws -> String {
+        guard let countryModel = try await CountryModel.find(req.parameters.get("countryModelID"), on: req.db) else {
+            throw Abort(.notFound)
+        }
+        
+        guard let earthModel = try await EarthModel.find(countryModel.earthID, on: req.db) else {
+            throw Abort(.notFound)
+        }
+        
+        let command = try req.content.decode(CountryCommand.self)
+        
+        // We need to verify that the command that was send from the client is an actual command from the countries list of active commands. This is particularly relevant for commands with associated values that might be tampered with from the client side.
+        guard countryModel.country.activeCommands.contains(command) else {
+            throw Abort(.badRequest)
+        }
+        
+        let result = countryModel.country.reverseCommand(command, in: earthModel.earth)
+        
+        countryModel.country = result.updatedCountry
+        try await countryModel.save(on: req.db)
+        
+        return result.resultMessage
+    }
 }
-
-extension CountryCommand: Content { }

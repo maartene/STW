@@ -25,35 +25,38 @@ public struct Country {
     /// ISO 2 letter country code
     public let countryCode: String
     
-    /// The base yearly emissions (in gigaton carbon).
-    public let baseYearlyEmissions: Double
+    /// The countries yearly emissions (in gigaton carbon).
+    public var yearlyEmissions: Double
     
     /// The base GDP (in 1000 US$)
-    public let baseGDP: Double
+    public var baseGDP: Double
     
     /// The current population of the country
     public var population: Int
     
-    /// The amount the country is investing in emission reduction (in 1000 US$)
-    public var emissionReductionSpent: Double = 0
+    /// The current active commands
+    public var activeCommands = [CountryCommand]()
+    
+//    /// The amount the country is investing in emission reduction (in 1000 US$)
+//    public var emissionReductionSpent: Double = 0
     
     
-    /// The amount of emission reduction, compared to the base emissions, (in gigatonnes Carbon)
-    public var emissionReduction: Double {
-        var spent = emissionReductionSpent
-        
-        if spent * Self.EMISSION_REDUCTION_PER_THOUSAND_USDOLLAR <= baseYearlyEmissions {
-            return spent * Self.EMISSION_REDUCTION_PER_THOUSAND_USDOLLAR      
-        } else {    // if we're spending more than we have emissions to reduce, we'll assume to 'scrum' carbon from the atmosphere at a rate of
-            spent -= baseYearlyEmissions / Self.EMISSION_REDUCTION_PER_THOUSAND_USDOLLAR
-            return baseYearlyEmissions + spent * Self.CARBON_SCRUBBED_PER_THOUSAND_USDOLLAR
-        }
-    }
+//    /// The amount of emission reduction, compared to the base emissions, (in gigatonnes Carbon)
+//    public var emissionReduction: Double {
+//        var spent = emissionReductionSpent
+//
+//        if spent * Self.EMISSION_REDUCTION_PER_THOUSAND_USDOLLAR <= yearlyEmissions {
+//            return spent * Self.EMISSION_REDUCTION_PER_THOUSAND_USDOLLAR
+//        } else {    // if we're spending more than we have emissions to reduce, we'll assume to 'scrum' carbon from the atmosphere at a rate of
+//            spent -= yearlyEmissions / Self.EMISSION_REDUCTION_PER_THOUSAND_USDOLLAR
+//            return yearlyEmissions + spent * Self.CARBON_SCRUBBED_PER_THOUSAND_USDOLLAR
+//        }
+//    }
     
-    /// The actual carbon this country emits per year (in gigatonnes carbon), taking emission reduction into account.
-    public var yearlyEmissions: Double {
-        baseYearlyEmissions - emissionReduction
-    }
+//    /// The actual carbon this country emits per year (in gigatonnes carbon), taking emission reduction into account.
+//    public var yearlyEmissions: Double {
+//        yearlyEmissions - emissionReduction
+//    }
     
     /// Returns the net GDP this country has to spend, after 'paying' for damages caused by temperature increase.
     /// - Parameter earth: the simulated earth this country is a part of.
@@ -74,7 +77,7 @@ public struct Country {
     public init(name: String, countryCode: String, baseYearlyEmissions: Double, baseGDP: Double, population: Int) {
         self.name = name
         self.countryCode = countryCode
-        self.baseYearlyEmissions = baseYearlyEmissions
+        self.yearlyEmissions = baseYearlyEmissions
         self.baseGDP = baseGDP
         self.population = population
     }
@@ -86,25 +89,35 @@ public struct Country {
     ///   - earth: the earth this command is executed in.
     /// - Returns: an updated version of the country, with the effects of the command applied.
     public func executeCommand(_ command: CountryCommand, in earth: Earth) -> (updatedCountry: Country, resultMessage: String) {
-        var updatedCountry = self
-        var resultMessage = ""
-        
-        /// add a case for each command (case) in `CountryCommand.swift`
-        switch command {
-        case .exampleCommand(let message):
-            resultMessage = "Received an example command with message: \(message)"
+        guard activeCommands.contains(command) == false else {
+            return (self, "\(command.name) is already active.")
         }
         
-        print(resultMessage)
-        return (updatedCountry, resultMessage)
+        var result = command.applyEffect(to: self, in: earth)
+        result.updatedCountry.activeCommands.append(command)
+        return result
+    }
+    
+    /// Reverse a country command.
+    /// - Parameters:
+    ///   - command: the command to reverse.
+    ///   - earth: the earth this command is executed in.
+    /// - Returns: an updated version of the country, with the effects of the command reversed.
+    public func reverseCommand(_ command: CountryCommand, in earth: Earth) -> (updatedCountry: Country, resultMessage: String) {
+        guard activeCommands.contains(command) else {
+            return (self, "\(command.name) is not active.")
+        }
+        
+        var result = command.reverseEffect(on: self, in: earth)
+        result.updatedCountry.activeCommands.removeAll(where: {$0 == command})
+        return result
     }
     
     /// An array of all commands available to this country.
     public var availableCommands: [CountryCommand] {
         [
             .exampleCommand(message: "Hello!"),
-            .exampleCommand(message: "World"),
-            .exampleCommand(message: "from: \(name)")
+            .subsidiseFossilFuels
         ]
     }
 }

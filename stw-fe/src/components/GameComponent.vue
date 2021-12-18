@@ -1,4 +1,11 @@
 !<template>
+    <div class="alert alert-primary d-flex align-items-center alert-dismissible fade show" role="alert" v-if="message != ''">
+        <img src="/img/bootstrap-icons/check-circle.svg" alt="Check circle">&nbsp;&nbsp;
+        <div>
+            {{message}}
+            <button type="button" class="btn-close" v-on:click="message = ''" aria-label="Close"></button>
+        </div>
+    </div>
     <h1>Earth</h1>
     <ul class="list-group">
         <li class="list-group-item">Year: {{gameData.currentYear}}</li>
@@ -12,11 +19,29 @@
     </ul>
     <p class="my-3"></p>
     <h1>Your command?</h1>
-    <ul class="list-group">
-        <li class="list-group-item" v-for="(command, index) in commands" :key="index">
-            <button class="btn btn-primary" v-on:click="sendCommand(command)">{{command}}</button></li>
-    </ul>
-    <h3 v-if="message != ''">{{message}}</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>&nbsp;</th>
+                <th>Command</th>
+                <th>Effect</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr v-for="(command, index) in commands" :key="index">
+                <td>{{index + 1}}</td>
+                <td>{{command.name}}&nbsp;
+                    <span class="badge bg-success" v-if="command.isActive">Active</span>
+                </td>
+                <td>{{command.commandEffectDescription}}</td>
+                <td>
+                    <button class="btn btn-sm btn-success" v-if="command.isActive == false" v-on:click="sendCommand(command.command)">Activate</button>
+                    <button class="btn btn-sm btn-danger" v-if="command.isActive" v-on:click="reverseCommand(command.command)">Deactivate</button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
     <p class="my-3"></p>
     <button class="btn btn-primary" v-on:click="refresh">Refresh</button>
 </template>
@@ -74,6 +99,23 @@ export default {
                 // JSON responses are automatically parsed.
                 console.log(response.data);
                 this.message = response.data;
+
+                this.refresh();
+            })
+            .catch( e => {
+                this.errors.push(e);
+            })
+        },
+
+        reverseCommand(command) {
+            console.log(`Attempting to reverse command: ${command}`);
+            axios.post(`${this.STW_API_ENDPOINT}/game/${this.countryID}/reverse`, command)
+            .then(response => {
+                // JSON responses are automatically parsed.
+                console.log(response.data);
+                this.message = response.data;
+
+                this.refresh();
             })
             .catch( e => {
                 this.errors.push(e);

@@ -28,6 +28,7 @@ The application consists of two parts:
 
 This opens XCode. Before running, please consider:
 * Setting a custom working directory to the stw-be folder (otherwise `Data/*.json` cannot be found)
+* You need to set the `STW_BACKEND_DB_URL` environment variable to the MongoDB commection string in the Run scheme settings. 
 
 Now you can run the server using Command-R.
 
