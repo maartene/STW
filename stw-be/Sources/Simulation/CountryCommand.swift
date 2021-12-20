@@ -10,12 +10,105 @@ import Foundation
 /// Definition of all possible commands that can be performed by a country.
 ///
 /// `Codable` conformance makes it easy to send and receive commands between backend and front-end.
-public enum CountryCommand: Codable, Equatable {
+public struct CountryCommand: Codable, Equatable {
     
-    /// An example command without any real game impact.
-    case exampleCommand(message: String)
-    case subsidiseFossilFuels
+    /// Errors associated with this command.
+    public enum CountryCommandErrors: Error {
+        
+        /// The command cannot be found in the list of known commands.
+        case commandNotFound
+    }
     
+    /// A descriptive name, that also acts as the primary key for the command.
+    public let name: String
+    
+    /// A description of the command to show more information.
+    public let description: String
+    
+    /// The various ways this command impacts `Country`s.
+    public let effects: [Effect]
+    
+    /// If you want to override the default message that is shown when a `Country` executes a `CountryCommand`, set this property.
+    public let customApplyMessage: String?
+    
+    /// The cost to execute this command, in Country points.
+    public let cost: Int
+    
+    /// Various flags associated with this command.
+    public let flags: [CountryCommandFlag]
+    
+    private enum CodingKeys: CodingKey {
+        case name, description, effects, customApplyMessage, cost, flags
+    }
+    
+    /// Codable based encode function.
+    /// Use this to convert the command to JSON
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(name, forKey: .name)
+        try container.encode(description, forKey: .description)
+        try container.encode(effects, forKey: .effects)
+        try container.encode(customApplyMessage, forKey: .customApplyMessage)
+        try container.encode(cost, forKey: .cost)
+        try container.encode(flags, forKey: .flags)
+    }
+    
+    
+    /// Codable based initiazer.
+    /// Set's default values to keep JSON definition as short and simple as possible.
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        name = try values.decode(String.self, forKey: .name)
+        description = (try? values.decode(String.self, forKey: .description)) ?? name
+        effects = try values.decode([Effect].self, forKey: .effects)
+        customApplyMessage = (try? values.decode(String?.self, forKey: .customApplyMessage)) ?? nil
+        cost = (try? values.decode(Int.self, forKey: .cost)) ?? 0
+        flags = (try? values.decode([CountryCommandFlag].self, forKey: .flags)) ?? []
+    }
+    
+    /// Memberwise initiazer
+    /// - Parameters:
+    ///   - name: the descriptive name to use for this command. Make sure it's unique!
+    ///   - description: more information about the command
+    ///   - effects: the ways the command impacts a country, defined in `Effect`s
+    ///   - customApplyMessage: if you want to use a custom apply message, set this value to a string.
+    ///   - cost: the cost of this command in Country codes. Set to '0' for a free command
+    ///   - flags: any flags you want to set.
+    private init(name: String, description: String, effects: [Effect], customApplyMessage: String?, cost: Int, flags: [CountryCommandFlag]) {
+        self.name = name
+        self.description = description
+        self.effects = effects
+        self.customApplyMessage = customApplyMessage
+        self.cost = cost
+        self.flags = flags
+    }
+    
+    /// The 'database' of commands known in the game.
+    private static var allCommands = loadCommands()
+    
+    /// Populates the 'database' of commands, from a game supplied JSON.
+    /// - Returns: all the commands that are found in the datafile.
+    private static func loadCommands() -> [CountryCommand] {
+        do {
+            let url = URL(fileURLWithPath: "Data/CountryCommands.json")
+            let countryJSON = try Data(contentsOf: url)
+            let decoder = JSONDecoder()
+            let commands = try decoder.decode([CountryCommand].self, from: countryJSON)
+            return commands
+        } catch {
+            fatalError("Failed to load commands: \(error)")
+        }
+    }
+    
+    /// Get a command from the 'database'.
+    /// - Parameter name: the commands name.
+    /// - Returns: the command (if found)
+    public static func getCommand(_ name: String) throws -> CountryCommand {
+        if let command = allCommands.first(where: { $0.name == name }) {
+            return command
+        }
+        throw CountryCommandErrors.commandNotFound
+    }
     
     /// Applies this command's effects to a country in a world.
     /// - Parameters:
@@ -29,65 +122,23 @@ public enum CountryCommand: Codable, Equatable {
             updatedCountry = effect.applyEffect(to: updatedCountry, in: earth)
         }
         
-        return (updatedCountry, effectResultDescription)
-    }
-    
-    /// Reverses this command's effects in a country in a world.
-    /// - Parameters:
-    ///   - country: the country to reverse the effects in.
-    ///   - earth: the earth that provides context for the country.
-    /// - Returns: A tuple of an `updatedCountry: Country` and a `resultMessage: String`.
-    func reverseEffect(on country: Country, in earth: Earth) -> (updatedCountry: Country, resultMessage: String) {
-        var updatedCountry = country
-        
-        for effect in effects {
-            updatedCountry = effect.reverseEffect(on: updatedCountry, in: earth)
-        }
-        
-        return (updatedCountry, "Reversed the effect of \(name).")
+        return (updatedCountry, customApplyMessage ?? "\(name) succesfully applied.")
     }
     
     /// A string version that describes the various effects of this command.
     public var effectDescription: String {
         if effects.count > 0 {
-            let effectDescriptions = effects.map { $0.description }
+            let effectDescriptions = effects.map { $0.description() }
             return effectDescriptions.joined(separator: "\n")
         } else {
             return "No effect"
         }
     }
+}
+
+/// Known flags for `CountryCommand`s
+public enum CountryCommandFlag: Codable, Equatable {
     
-    
-    /// An array of `Effect` that this command performs when applied.
-    var effects: [Effect] {
-        switch self {
-        case .exampleCommand:
-            return []
-        case .subsidiseFossilFuels:
-            return [
-                .changeGDP(percentage: 1),
-                .changeEmissions(percentage: 2)
-            ]
-        }
-    }
-    
-    /// A descriptive name for the command
-    public var name: String {
-        switch self {
-        case .exampleCommand:
-            return "Example Command"
-        case .subsidiseFossilFuels:
-            return "Subsidise fossil fuels"
-        }
-    }
-    
-    /// A descriptive name for the result of this command when applied.
-    var effectResultDescription: String {
-        switch self {
-        case .exampleCommand(let message):
-            return "Received an example command with message: \(message)"
-        case .subsidiseFossilFuels:
-            return "Your country is now subsidising fossil fuels."
-        }
-    }
+    /// Mark this command as intended for debugging only.
+    case debugModeOnly
 }

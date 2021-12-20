@@ -12,6 +12,8 @@
     </div>
 
     <button type="submit" v-on:click="login" class="btn btn-primary">Submit</button>
+
+    <button v-on:click="fill" class="btn btn-danger">Let me in!</button>
 </template>
 
 <script>
@@ -27,6 +29,11 @@ export default {
     },
     emits: ['login'],
     methods: {
+        fill() {
+            this.earthID = "15B33BE3-B698-40F7-917D-88D54E67AD4B";
+            this.countryID = "6777918C-EA66-435D-99ED-390169FC9916";
+            this.login();
+        },
         login() {
             // to see wether we have valid data, we try to get the earth...
             axios.get(`${this.STW_API_ENDPOINT}/earthModels/${this.earthID}/`)

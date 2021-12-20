@@ -16,13 +16,19 @@ struct GameController: RouteCollection {
         game.group(":countryModelID") { gameGroup in
             gameGroup.get(use: getFullData)
             gameGroup.post(use: executeCommand)
-            gameGroup.post("reverse", use: reverseCommand)
             gameGroup.group("commands") { commandGroup in
                 commandGroup.get(use: getAvailableCommands)
+            }
+            gameGroup.group("policies") { policyGroup in
+                policyGroup.get(use: getPolicies)
+                policyGroup.post(use: enactPolicy)
+                policyGroup.post("revoke", use: revokePolicy)
+                policyGroup.post("levelup", use: levelUpPolicy)
             }
         }
     }
     
+    // MARK: Basic data
     struct FullDataResponse: Content {
         let countryID: UUID
         let earthID: UUID
@@ -32,6 +38,8 @@ struct GameController: RouteCollection {
         let yearlyEmissions: Double
         let netGDP: Double
         let population: Int
+        let countryPoints: Int
+        let countryPointsPerTick: Int
         
         init(countryModel: CountryModel, earthModel: EarthModel) {
             self.countryID = countryModel.id!
@@ -42,6 +50,8 @@ struct GameController: RouteCollection {
             self.yearlyEmissions = countryModel.country.yearlyEmissions
             self.netGDP = countryModel.country.getCorrectedGDP(earthModel.earth)
             self.population = countryModel.country.population
+            self.countryPoints = countryModel.country.countryPoints
+            self.countryPointsPerTick = countryModel.country.countryPointsPerTick
         }
     }
     
@@ -59,17 +69,14 @@ struct GameController: RouteCollection {
         return response
     }
     
+    // MARK: Commands
     struct CommandInfo: Content {
         let command: CountryCommand
-        let name: String
-        let commandEffectDescription: String
-        let isActive: Bool
+        let effectDescription: String
         
-        init(_ command: CountryCommand, isActive: Bool) {
+        init(_ command: CountryCommand) {
             self.command = command
-            self.name = command.name
-            self.commandEffectDescription = command.effectDescription
-            self.isActive = isActive
+            self.effectDescription = command.effectDescription
         }
     }
     
@@ -78,9 +85,16 @@ struct GameController: RouteCollection {
             throw Abort(.notFound)
         }
         
-        return countryModel.country.availableCommands.map { command in
-            CommandInfo(command, isActive: countryModel.country.activeCommands.contains(command))
+        let debugMode = Environment.get("DEBUG_MODE")?.uppercased() == "TRUE"
+        var filteredCommands = countryModel.country.availableCommands
+        
+        if debugMode == false {
+            filteredCommands = filteredCommands.filter {
+                $0.flags.contains(.debugModeOnly) == false
+            }
         }
+        
+        return filteredCommands.map { CommandInfo($0) }
     }
     
     func executeCommand(req: Request) async throws -> String {
@@ -107,27 +121,81 @@ struct GameController: RouteCollection {
         return result.resultMessage
     }
     
-    func reverseCommand(req: Request) async throws -> String {
+    // MARK: Policies
+    struct PolicyInfo: Content {
+        let policy: Policy
+        let effectDescription: String
+        let upgradeCost: Int
+        
+        init(policy: Policy) {
+            self.policy = policy
+            self.effectDescription = policy.effectDescription()
+            self.upgradeCost = policy.upgradeCost
+        }
+    }
+    
+    struct CountryPolicyInfo: Content {
+        let availablePolicies: [PolicyInfo]
+        let activePolicies: [PolicyInfo]
+    }
+    
+    func getPolicies(req: Request) async throws -> CountryPolicyInfo {
         guard let countryModel = try await CountryModel.find(req.parameters.get("countryModelID"), on: req.db) else {
             throw Abort(.notFound)
         }
         
-        guard let earthModel = try await EarthModel.find(countryModel.earthID, on: req.db) else {
+        let availablePolicies = countryModel.country.enactablePolicies.map { PolicyInfo(policy: $0) }
+        let activePolicies = countryModel.country.activePolicies.map { PolicyInfo(policy: $0) }
+        
+        return CountryPolicyInfo(availablePolicies: availablePolicies, activePolicies: activePolicies)
+    }
+    
+    func enactPolicy(req: Request) async throws -> String {
+        guard let countryModel = try await CountryModel.find(req.parameters.get("countryModelID"), on: req.db) else {
             throw Abort(.notFound)
         }
         
-        let command = try req.content.decode(CountryCommand.self)
+        let policy = try req.content.decode(Policy.self)
         
-        // We need to verify that the command that was send from the client is an actual command from the countries list of active commands. This is particularly relevant for commands with associated values that might be tampered with from the client side.
-        guard countryModel.country.activeCommands.contains(command) else {
-            throw Abort(.badRequest)
-        }
-        
-        let result = countryModel.country.reverseCommand(command, in: earthModel.earth)
+        let result = countryModel.country.enactPolicy(policy)
         
         countryModel.country = result.updatedCountry
         try await countryModel.save(on: req.db)
         
         return result.resultMessage
+        
+    }
+    
+    func revokePolicy(req: Request) async throws -> String {
+        guard let countryModel = try await CountryModel.find(req.parameters.get("countryModelID"), on: req.db) else {
+            throw Abort(.notFound)
+        }
+        
+        let policy = try req.content.decode(Policy.self)
+        
+        let result = countryModel.country.revokePolicy(policy)
+        
+        countryModel.country = result.updatedCountry
+        try await countryModel.save(on: req.db)
+        
+        return result.resultMessage
+        
+    }
+    
+    func levelUpPolicy(req: Request) async throws -> String {
+        guard let countryModel = try await CountryModel.find(req.parameters.get("countryModelID"), on: req.db) else {
+            req.logger.warning("Could not find countryModel with id: \(req.parameters.get("countryModelID") ?? "unknown")")
+            throw Abort(.notFound)
+        }
+        
+        let policy = try req.content.decode(Policy.self)
+        
+        let result = countryModel.country.levelUpPolicy(policy)
+        
+        countryModel.country = result.updatedCountry
+        try await countryModel.save(on: req.db)
+        
+        return result.resultMessage
+        
     }
 }

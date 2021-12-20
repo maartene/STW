@@ -44,4 +44,12 @@ final class CountryTests: XCTestCase {
     func testGlobalWarmingLowersGDP() {
         XCTAssertLessThan(netherlands.getCorrectedGDP(warmedEarth), netherlands.getCorrectedGDP(earth))
     }
+    
+    func testTickIncreasesCountryPoints() {
+        var country = netherlands
+        
+        country.tick(in: earth)
+        
+        XCTAssertGreaterThan(country.countryPoints, netherlands.countryPoints)
+    }
 }
