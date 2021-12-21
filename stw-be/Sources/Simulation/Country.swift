@@ -100,7 +100,11 @@ public struct Country: Codable {
     public mutating func tick(in earth: Earth) {
         countryPoints += 1
         
-        for policy in activePolicies {
+        let sortedActivePolicies = activePolicies.sorted {
+            $0.priority < $1.priority
+        }
+        
+        for policy in sortedActivePolicies {
             self = policy.applyEffects(to: self, in: earth)
         }
     }
@@ -113,8 +117,18 @@ public struct Country: Codable {
     /// The policies that can be enacted by this country, regardless of whether the are already enacted.
     public var availablePolicies: [Policy] {
         [
-            Policy(name: "Subsidise fossil fuels", level: 1, effects: [.changeEmissions(percentage: 2), .changeGDP(percentage: 1)], baseCost: 1),
-            Policy(name: "Subsidise green energy", level: 1, effects: [.changeEmissions(percentage: -1), .changeGDP(percentage: -1)], baseCost: 3)
+            Policy(name: "Subsidise fossil fuels", effects: [.changeEmissionsDirect(percentage: 2), .changeGDPDirect(percentage: 1)], baseCost: 1, priority: -10),
+            Policy(name: "Subsidise green energy", effects: [.changeEmissionsDirect(percentage: -1), .changeGDPDirect(percentage: -1)], baseCost: 3, priority: -10),
+            Policy(name: "Set emission reduction target 10%", effects: [
+                .changeEmissionsTowardsTarget(percentageReductionPerYear: 1, target: 10)], baseCost: 1),
+            Policy(name: "Set emission reduction target 20%", effects: [
+                .changeEmissionsTowardsTarget(percentageReductionPerYear: 1, target: 20)], baseCost: 5),
+            Policy(name: "Set emission reduction target 50%", description: "Note: this is an agressive reduction that impacts GDP.", effects: [
+                .changeEmissionsTowardsTarget(percentageReductionPerYear: 1, target: 50)], baseCost: 27),
+            Policy(name: "Set emission reduction target 100%", description: "Note: this is an agressive reduction that impacts GDP.", effects: [
+                .changeEmissionsTowardsTarget(percentageReductionPerYear: 1, target: 100)], baseCost: 210),
+            Policy(name: "Sell emission rights", effects: [.extraEmissions(percentage: 1),
+                   .freePoints(points: 1)], baseCost: 1)
         ]
     }
     
@@ -186,5 +200,15 @@ public struct Country: Codable {
         updatedCountry.activePolicies[index].level += 1
         
         return (updatedCountry, "Successfully upgraded policy '\(policy.name)'")
+    }
+    
+    public func forecast(to year: Int, in earth: Earth) -> Country {
+        var forecastCountry = self
+        for _ in earth.currentYear ..< year {
+            for _ in 0 ..< 24 {
+                forecastCountry.tick(in: earth)
+            }
+        }
+        return forecastCountry
     }
 }

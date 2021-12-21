@@ -52,7 +52,11 @@ To run the front-end locally, you need `node.js` and `npm` installed.
 * `GET /countryModels/[countryModel UUID]` : retrieves a specific `CountryModel` by it's ID (UUID)
 * `GET /game/[countryModel UUID]` : retrieves all relevant data to display in the game.
 * `GET /game/[countryModel UUID]/commands` : retrieves all commands the country can execute (at this time).
-* `POST /game/[countryModel UUID]/[command]` : sends a command to execute. Returns a message (string) indicating what happened.
+* `POST /game/[countryModel UUID]/` : sends a command to execute. Returns a message (string) indicating what happened.
+* `GET /game/[countryModel UUID]/policies` : retrieves all policies the country can envoke (at this time) and has active.
+* `POST /game/[countryModel UUID]/policies` : sends a policy to enact (in the payload of the request as JSON). Returns a message (string) indicating what happened.
+* `POST /game/[countryModel UUID]/policies/revoke` : sends a policy to revoke (in the payload of the request as JSON). Returns a message (string) indicating what happened.
+* `POST /game/[countryModel UUID]/policies/levelup` : sends a policy to levelup (in the payload of the request as JSON). Returns a message (string) indicating what happened.
 
 ## Playing the game
 Coming soon.

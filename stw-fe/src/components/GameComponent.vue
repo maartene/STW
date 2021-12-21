@@ -33,6 +33,14 @@
                 <li class="list-group-item">Yearly emissions: {{(1000000000 * gameData.yearlyEmissions / gameData.population).toPrecision(4)}} tonnes</li>
             </ul>
         </div> 
+        <div class="col">
+            <h1>Forecast</h1>
+            <ul class="list-group">
+                <li class="list-group-item">Net GDP: {{gameData.forecastNetGDP}} * 1000USD</li>
+                <li class="list-group-item">Yearly emissions: {{gameData.forecastYearlyEmissions.toPrecision(4)}} Giga Tonnes</li>
+                <li class="list-group-item">Population: {{gameData.forecastPopulation}}</li>
+            </ul>
+        </div>
     </div>
 
     <p class="my-3"></p>
@@ -75,7 +83,10 @@ export default {
                 yearlyEmissions: 0,
                 currentYear: 0,
                 currentTemperature: 0,
-                population: 0
+                population: 0,
+                forecastNetGDP: 0,
+                forecastYearlyEmissions: 0,
+                forecastPopulation: 0
             },
             commands: [
                 {

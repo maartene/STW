@@ -10,26 +10,6 @@
         ]
     },
     {
-        "name": "Subsidise fossil fuels",
-        "effects": [
-            {
-                "changeEmissions": {
-                    "percentage": 2
-                }
-            },
-            {
-                "changeGDP": {
-                    "percentage": 1
-                }
-            }
-        ],
-        "flags": [
-            {
-                "reversible": { }
-            }
-        ]
-    },
-    {
         "name": "Free points",
         "effects": [
             {

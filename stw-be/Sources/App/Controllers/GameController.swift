@@ -40,6 +40,10 @@ struct GameController: RouteCollection {
         let population: Int
         let countryPoints: Int
         let countryPointsPerTick: Int
+        let forecastNetGDP: Double
+        let forecastYearlyEmissions: Double
+        let forecastPopulation: Int
+        let forecastYear: Int
         
         init(countryModel: CountryModel, earthModel: EarthModel) {
             self.countryID = countryModel.id!
@@ -52,6 +56,12 @@ struct GameController: RouteCollection {
             self.population = countryModel.country.population
             self.countryPoints = countryModel.country.countryPoints
             self.countryPointsPerTick = countryModel.country.countryPointsPerTick
+            let forecastYear = earthModel.earth.currentYear + 50
+            let forecast = countryModel.country.forecast(to: forecastYear, in: earthModel.earth)
+            self.forecastNetGDP = forecast.getCorrectedGDP(earthModel.earth)
+            self.forecastYearlyEmissions = forecast.yearlyEmissions
+            self.forecastPopulation = forecast.population
+            self.forecastYear = forecastYear
         }
     }
     

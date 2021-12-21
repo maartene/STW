@@ -9,9 +9,11 @@ import Foundation
 
 /// A policy a Country can enact (or retract) to change how it performs in the world.
 public struct Policy: Codable, Equatable {
-
     /// A descriptive name for this policy, working as a sort of "primary key".
     public let name: String
+    
+    /// A description providing further info about the policy.
+    public let description: String
     
     /// The level for this policy. Higher levels make policy effects more profound.
     public var level: Int
@@ -27,6 +29,30 @@ public struct Policy: Codable, Equatable {
         baseCost * faculty(level)
     }
     
+    /// Determines the sequence in which policies are applied to a country during an update. Lower values are applied first. `0` indicated 'neutral'.
+    ///
+    /// I.e. if you have something you want to apply first, give a big negative value. If you want something to be applied last, give a big positive number.
+    let priority: Int
+    
+    /// Initialize a new Policy.
+    /// - Parameters:
+    ///   - name: The name of the policy. Needs to be unique.
+    ///   - description: A longer description of the policy. Perhaps contains hints of usage.
+    ///   - level: The level you want to start this policy. Default: 1
+    ///   - effects: The way this policy affects countries, defined as an array of `Effect`.
+    ///   - baseCost: The cost of this policy to enact it.
+    ///   - priority: The priority of this policy. Default: 0 ('neutral')
+    ///
+    ///   Policies are applied to countries in sequence of priority from low to high. If you have something you want to apply first, give a big negative value. If you want something to be applied last, give a big positive number.
+    public init(name: String, description: String? = nil, level: Int = 1, effects: [Effect], baseCost: Int, priority: Int = 0) {
+        self.name = name
+        self.description = description ?? name
+        self.level = level
+        self.effects = effects
+        self.baseCost = baseCost
+        self.priority = priority
+    }
+    
     /// Apply this policies effects to a `Country`.
     /// - Parameters:
     ///   - country: the country to apply the effects to.
@@ -36,7 +62,7 @@ public struct Policy: Codable, Equatable {
         var updatedCountry = country
         
         for effect in effects {
-            updatedCountry = effect.applyEffect(to: updatedCountry, in: earth)
+            updatedCountry = effect.applyEffect(to: updatedCountry, in: earth, level: level)
         }
         
         return updatedCountry
