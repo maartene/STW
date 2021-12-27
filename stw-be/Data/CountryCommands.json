@@ -31,4 +31,14 @@
             }
         ]
     },
+    {
+        "name": "Climate conference",
+        "effects": [
+        ],
+        "flags": [],
+        "prerequisitesNames": [
+            "Set emission reduction target 50%", "Set emission reduction target 100%"
+        ], 
+        "cost": 100
+    }
 ]

@@ -74,6 +74,20 @@ public struct Earth {
         
         return simulatedPlanet.currentTemperature
     }
+
+    public func forecastSeries(to year: Int, yearlyEmissions: Double) -> [Earth] {
+        assert(year >= currentYear) 
+        
+        var result = [Earth]()
+        var simulatedPlanet = self
+
+        for _ in currentYear ..< year {
+            result.append(simulatedPlanet)
+            simulatedPlanet.tick(yearlyEmission: yearlyEmissions)
+        }
+
+        return result
+    }
     
     /// the (simulated) year
     public var currentYear = BASE_YEAR

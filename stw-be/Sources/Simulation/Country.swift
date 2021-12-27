@@ -112,23 +112,31 @@ public struct Country: Codable {
     /// An array of all commands available to this country.
     public var availableCommands: [CountryCommand] {
         Self.defaultCommands()
+        .filter { command in 
+            if command.prerequisitesNames.count == 0 {
+                return true
+            }
+
+            for prereq in command.prerequisitesNames {
+                if activePolicies.contains(where: {$0.name == prereq}) {
+                    return true
+                }
+            }
+            return false
+        }
     }
     
     /// The policies that can be enacted by this country, regardless of whether the are already enacted.
     public var availablePolicies: [Policy] {
         [
-            Policy(name: "Subsidise fossil fuels", effects: [.changeEmissionsDirect(percentage: 2), .changeGDPDirect(percentage: 1)], baseCost: 1, priority: -10),
-            Policy(name: "Subsidise green energy", effects: [.changeEmissionsDirect(percentage: -1), .changeGDPDirect(percentage: -1)], baseCost: 3, priority: -10),
             Policy(name: "Set emission reduction target 10%", effects: [
-                .changeEmissionsTowardsTarget(percentageReductionPerYear: 1, target: 10)], baseCost: 1),
+                .changeEmissionsTowardsTarget(percentageReductionPerYear: 1, target: 10)], baseCost: 1, prerequisites: [], policyCategory: .emissionTarget),
             Policy(name: "Set emission reduction target 20%", effects: [
-                .changeEmissionsTowardsTarget(percentageReductionPerYear: 1, target: 20)], baseCost: 5),
+                .changeEmissionsTowardsTarget(percentageReductionPerYear: 1, target: 20)], baseCost: 5, prerequisites: ["Set emission reduction target 10%"], policyCategory: .emissionTarget),
             Policy(name: "Set emission reduction target 50%", description: "Note: this is an agressive reduction that impacts GDP.", effects: [
-                .changeEmissionsTowardsTarget(percentageReductionPerYear: 1, target: 50)], baseCost: 27),
+                .changeEmissionsTowardsTarget(percentageReductionPerYear: 1, target: 50)], baseCost: 27, prerequisites: ["Set emission reduction target 20%"], policyCategory: .emissionTarget),
             Policy(name: "Set emission reduction target 100%", description: "Note: this is an agressive reduction that impacts GDP.", effects: [
-                .changeEmissionsTowardsTarget(percentageReductionPerYear: 1, target: 100)], baseCost: 210),
-            Policy(name: "Sell emission rights", effects: [.extraEmissions(percentage: 1),
-                   .freePoints(points: 1)], baseCost: 1)
+                .changeEmissionsTowardsTarget(percentageReductionPerYear: 1, target: 100)], baseCost: 210, prerequisites: ["Set emission reduction target 100%"], policyCategory: .emissionTarget),
         ]
     }
     
@@ -137,6 +145,18 @@ public struct Country: Codable {
     public var enactablePolicies: [Policy] {
         availablePolicies.filter { policy in
             activePolicies.contains(where: { $0.name == policy.name }) == false
+        }
+        .filter { policy in 
+            if policy.prerequisitesNames.count == 0 {
+                return true
+            }
+
+            for prerequisites in policy.prerequisitesNames {
+                if activePolicies.contains(where: { $0.name == prerequisites }) {
+                    return true
+                }
+            }
+            return false
         }
     }
     
@@ -147,6 +167,7 @@ public struct Country: Codable {
             var result = [CountryCommand]()
             result.append(try CountryCommand.getCommand("Example command"))
             result.append(try CountryCommand.getCommand("Free points"))
+            result.append(try CountryCommand.getCommand("Climate conference"))
             return result
         } catch {
             fatalError("Unable to create defeault list of commands: \(error).")
@@ -162,8 +183,16 @@ public struct Country: Codable {
         }
         
         var updatedCountry = self
+        
+        let policiesInSameCategory = activePolicies.filter({$0.category == policy.category})
+        
+        if let limit = policy.category.policyLimit, policiesInSameCategory.count >= limit, let firstIndex = updatedCountry.activePolicies.firstIndex(where: { $0.category == policy.category }) {
+            updatedCountry.activePolicies.remove(at: firstIndex)
+        }
+        
         updatedCountry.countryPoints -= policy.baseCost
         updatedCountry.activePolicies.append(policy)
+
         return (updatedCountry, "Successfully enacted policy '\(policy.name)'")
     }
     
@@ -210,5 +239,19 @@ public struct Country: Codable {
             }
         }
         return forecastCountry
+    }
+
+    public func forecastSeries(to year: Int, in earth: Earth) -> [Country] {
+        assert(year >= earth.currentYear)
+        
+        var result = [Country]()
+        var forecastCountry = self
+        for _ in earth.currentYear ..< year {
+            result.append(forecastCountry)
+            for _ in 0 ..< 24 {
+                forecastCountry.tick(in: earth)
+            }
+        }
+        return result
     }
 }

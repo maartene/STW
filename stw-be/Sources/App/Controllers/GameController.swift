@@ -25,6 +25,9 @@ struct GameController: RouteCollection {
                 policyGroup.post("revoke", use: revokePolicy)
                 policyGroup.post("levelup", use: levelUpPolicy)
             }
+            gameGroup.group("forecast") {forecastGroup in 
+                forecastGroup.get(use: getForecast)
+            }
         }
     }
     
@@ -33,6 +36,7 @@ struct GameController: RouteCollection {
         let countryID: UUID
         let earthID: UUID
         let countryName: String
+        let countryCode: String
         let currentYear: Int
         let currentTemperature: Double
         let yearlyEmissions: Double
@@ -40,15 +44,12 @@ struct GameController: RouteCollection {
         let population: Int
         let countryPoints: Int
         let countryPointsPerTick: Int
-        let forecastNetGDP: Double
-        let forecastYearlyEmissions: Double
-        let forecastPopulation: Int
-        let forecastYear: Int
         
         init(countryModel: CountryModel, earthModel: EarthModel) {
             self.countryID = countryModel.id!
             self.earthID = earthModel.id!
             self.countryName = countryModel.country.name
+            self.countryCode = countryModel.country.countryCode
             self.currentYear = earthModel.earth.currentYear
             self.currentTemperature = earthModel.earth.currentTemperature
             self.yearlyEmissions = countryModel.country.yearlyEmissions
@@ -56,12 +57,6 @@ struct GameController: RouteCollection {
             self.population = countryModel.country.population
             self.countryPoints = countryModel.country.countryPoints
             self.countryPointsPerTick = countryModel.country.countryPointsPerTick
-            let forecastYear = earthModel.earth.currentYear + 50
-            let forecast = countryModel.country.forecast(to: forecastYear, in: earthModel.earth)
-            self.forecastNetGDP = forecast.getCorrectedGDP(earthModel.earth)
-            self.forecastYearlyEmissions = forecast.yearlyEmissions
-            self.forecastPopulation = forecast.population
-            self.forecastYear = forecastYear
         }
     }
     
@@ -207,5 +202,49 @@ struct GameController: RouteCollection {
         
         return result.resultMessage
         
+    }
+
+    // MARK: Forecast
+    struct Forecast: Content {
+        let year: Int
+        let currentTemperature: Double
+        let currentConcentration: Double
+        let countryEmissions: Double
+    }
+    func getForecast(req: Request) async throws -> [Forecast] {
+        guard let countryModel = try await CountryModel.find(req.parameters.get("countryModelID"), on: req.db) else {
+            req.logger.warning("Could not find countryModel with id: \(req.parameters.get("countryModelID") ?? "unknown")")
+            throw Abort(.notFound)
+        }
+
+        guard let earthModel = try await EarthModel.find(countryModel.earthID, on: req.db) else {
+            req.logger.warning("Could not find earthModel with id: \(countryModel.earthID)")
+            throw Abort(.notFound)
+        }
+
+        let startYear = earthModel.earth.currentYear
+        let forecastYear = startYear + 50
+
+        let countries = try await CountryModel.query(on: req.db).filter(\.$earthID, .equal, earthModel.id!).all()
+        let emissions = countries.map { $0.country.yearlyEmissions }
+        let totalEmissions = emissions.reduce(0, +)
+
+        let earthForecasts = earthModel.earth.forecastSeries(to: forecastYear, yearlyEmissions: totalEmissions)
+        let countryForecasts = countryModel.country.forecastSeries(to: forecastYear, in: earthModel.earth)
+
+        assert(earthForecasts.count == countryForecasts.count)
+
+        var result = [Forecast]()
+        for i in 0 ..< earthForecasts.count {
+            let earth = earthForecasts[i]
+            let forecast = Forecast(
+                year: earth.currentYear, 
+                currentTemperature: earth.currentTemperature, 
+                currentConcentration: earth.currentConcentration, 
+                countryEmissions: countryForecasts[i].yearlyEmissions)
+            result.append(forecast)
+        }
+
+        return result
     }
 }

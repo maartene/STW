@@ -1,13 +1,14 @@
 <template>
-  <div class="container">
-    <transition name="fade">
-      <p v-if="!loggedIn()">
-        <LoginComponent @login="doLogin"></LoginComponent>
-      </p>
-      <p v-else>
-        <GameComponent v-bind:countryID="countryID"></GameComponent>
-      </p>
-    </transition>
+  <div class="container-flex m-3 p-3">
+    <h1>Save the World</h1>
+        <transition name="fade">
+        <div v-if="!loggedIn()">
+          <LoginComponent @login="doLogin"></LoginComponent>
+        </div>
+        <p v-else>
+          <GameComponent v-bind:countryID="countryID"></GameComponent>
+        </p>
+      </transition>
   </div>
 </template>
 
@@ -19,7 +20,7 @@ export default {
   name: 'App',
   components: {
     GameComponent,
-    LoginComponent
+    LoginComponent,
   },
   data() {
     return {
@@ -44,22 +45,4 @@ export default {
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5 ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
 </style>

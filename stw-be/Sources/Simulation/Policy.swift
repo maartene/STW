@@ -34,6 +34,39 @@ public struct Policy: Codable, Equatable {
     /// I.e. if you have something you want to apply first, give a big negative value. If you want something to be applied last, give a big positive number.
     let priority: Int
     
+    let prerequisitesNames: [String]
+
+    let category: PolicyCategory
+
+    enum CodingKeys: CodingKey {
+        case name, description, level, effects, baseCost, priority, prerequisitesNames, category
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = try encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(name, forKey: .name)
+        try container.encode(description, forKey: .description)
+        try container.encode(level, forKey: .level)
+        try container.encode(effects, forKey: .effects)
+        try container.encode(baseCost, forKey: .baseCost)
+        try container.encode(priority, forKey: .priority)
+        try container.encode(prerequisitesNames, forKey: .prerequisitesNames)
+        try container.encode(category, forKey: .category)
+    }
+
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        name = try values.decode(String.self, forKey: .name)
+        description = try values.decode(String.self, forKey: .description)
+        level = try values.decode(Int.self, forKey: .level)
+        effects = try values.decode([Effect].self, forKey: .effects)
+        baseCost = try values.decode(Int.self, forKey: .baseCost)
+        priority = try values.decode(Int.self, forKey: .priority)
+        prerequisitesNames = (try? values.decode([String].self, forKey: .prerequisitesNames)) ?? []
+        category = (try? values.decode(PolicyCategory.self, forKey: .category)) ?? .miscelaneous
+    }
+
+
     /// Initialize a new Policy.
     /// - Parameters:
     ///   - name: The name of the policy. Needs to be unique.
@@ -44,13 +77,15 @@ public struct Policy: Codable, Equatable {
     ///   - priority: The priority of this policy. Default: 0 ('neutral')
     ///
     ///   Policies are applied to countries in sequence of priority from low to high. If you have something you want to apply first, give a big negative value. If you want something to be applied last, give a big positive number.
-    public init(name: String, description: String? = nil, level: Int = 1, effects: [Effect], baseCost: Int, priority: Int = 0) {
+    public init(name: String, description: String? = nil, level: Int = 1, effects: [Effect], baseCost: Int, priority: Int = 0, prerequisites: [String] = [], policyCategory: PolicyCategory = .miscelaneous) {
         self.name = name
         self.description = description ?? name
         self.level = level
         self.effects = effects
         self.baseCost = baseCost
         self.priority = priority
+        self.prerequisitesNames = prerequisites
+        self.category = policyCategory
     }
     
     /// Apply this policies effects to a `Country`.
@@ -75,6 +110,20 @@ public struct Policy: Codable, Equatable {
             return effectDescriptions.joined(separator: "\n")
         } else {
             return "No effect"
+        }
+    }
+}
+
+public enum PolicyCategory: String, Codable {
+    case emissionTarget = "Emission Target"
+    case miscelaneous
+
+    var policyLimit: Int? {
+        switch self {
+        case .emissionTarget:
+            return 1
+        default: 
+            return nil
         }
     }
 }

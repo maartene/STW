@@ -37,8 +37,10 @@ public struct CountryCommand: Codable, Equatable {
     /// Various flags associated with this command.
     public let flags: [CountryCommandFlag]
     
+    public let prerequisitesNames: [String]
+
     private enum CodingKeys: CodingKey {
-        case name, description, effects, customApplyMessage, cost, flags
+        case name, description, effects, customApplyMessage, cost, flags, prerequisitesNames
     }
     
     /// Codable based encode function.
@@ -51,6 +53,7 @@ public struct CountryCommand: Codable, Equatable {
         try container.encode(customApplyMessage, forKey: .customApplyMessage)
         try container.encode(cost, forKey: .cost)
         try container.encode(flags, forKey: .flags)
+        try container.encode(prerequisitesNames, forKey: .prerequisitesNames)
     }
     
     
@@ -64,6 +67,7 @@ public struct CountryCommand: Codable, Equatable {
         customApplyMessage = (try? values.decode(String?.self, forKey: .customApplyMessage)) ?? nil
         cost = (try? values.decode(Int.self, forKey: .cost)) ?? 0
         flags = (try? values.decode([CountryCommandFlag].self, forKey: .flags)) ?? []
+        prerequisitesNames = (try? values.decode([String].self, forKey: .prerequisitesNames)) ?? []
     }
     
     /// Memberwise initiazer
@@ -74,13 +78,14 @@ public struct CountryCommand: Codable, Equatable {
     ///   - customApplyMessage: if you want to use a custom apply message, set this value to a string.
     ///   - cost: the cost of this command in Country codes. Set to '0' for a free command
     ///   - flags: any flags you want to set.
-    private init(name: String, description: String, effects: [Effect], customApplyMessage: String?, cost: Int, flags: [CountryCommandFlag]) {
+    private init(name: String, description: String, effects: [Effect], cost: Int, customApplyMessage: String? = nil, flags: [CountryCommandFlag] = [], prerequisites: [String] = []) {
         self.name = name
         self.description = description
         self.effects = effects
         self.customApplyMessage = customApplyMessage
         self.cost = cost
         self.flags = flags
+        self.prerequisitesNames = prerequisites
     }
     
     /// The 'database' of commands known in the game.
