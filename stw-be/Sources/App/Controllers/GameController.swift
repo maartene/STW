@@ -44,6 +44,14 @@ struct GameController: RouteCollection {
         let population: Int
         let countryPoints: Int
         let countryPointsPerTick: Int
+        let budgetSurplus: Double
+        let giniRating: Double
+        let educationDevelopmentIndex: Double
+        let wealthRating: String
+        let budgetSurplusRating: String
+        let giniRatingRating: String
+        let educationDevelopmentIndexRating: String
+        let emissionPerCapitaRating: String
         
         init(countryModel: CountryModel, earthModel: EarthModel) {
             self.countryID = countryModel.id!
@@ -57,6 +65,14 @@ struct GameController: RouteCollection {
             self.population = countryModel.country.population
             self.countryPoints = countryModel.country.countryPoints
             self.countryPointsPerTick = countryModel.country.countryPointsPerTick
+            self.budgetSurplus = countryModel.country.budgetSurplus
+            self.giniRating = countryModel.country.giniRating
+            self.educationDevelopmentIndex = countryModel.country.educationDevelopmentIndex
+            self.wealthRating = Rating.wealthRatingFor(countryModel.country).stringValue
+            self.budgetSurplusRating = Rating.budgetSurplusRatingFor(countryModel.country).stringValue
+            self.giniRatingRating = Rating.equalityRatingFor(countryModel.country).stringValue
+            self.educationDevelopmentIndexRating = Rating.ediRatingFor(countryModel.country).stringValue
+            self.emissionPerCapitaRating = Rating.emissionPerCapitaRatingFor(countryModel.country).stringValue
         }
     }
     
@@ -149,7 +165,11 @@ struct GameController: RouteCollection {
             throw Abort(.notFound)
         }
         
-        let availablePolicies = countryModel.country.enactablePolicies.map { PolicyInfo(policy: $0) }
+        let availablePolicies = countryModel.country.enactablePolicies.map { policy -> PolicyInfo in
+            //print(policy)
+            let newInfo = PolicyInfo(policy: policy)
+            return newInfo
+        }
         let activePolicies = countryModel.country.activePolicies.map { PolicyInfo(policy: $0) }
         
         return CountryPolicyInfo(availablePolicies: availablePolicies, activePolicies: activePolicies)

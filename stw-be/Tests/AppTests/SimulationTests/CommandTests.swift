@@ -11,7 +11,7 @@ import XCTest
 class CommandTests: XCTestCase {
 
     var netherlands: Country {
-        Country(name: "The Netherlands", countryCode: "NL", baseYearlyEmissions: 0.46, baseGDP: 90705, population: 16981295)
+        Country(name: "The Netherlands", countryCode: "NL", baseYearlyEmissions: 0.46, baseGDP: 90705, population: 16981295, budgetSurplus: -3.949727, giniRating: 28, educationDevelopmentIndex: 0.991817)
     }
     
     var earth: Earth {

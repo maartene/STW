@@ -4,8 +4,7 @@
         <thead>
             <tr>
                 <th>Category</th>
-                <th>Policies</th>
-                <th>Effect</th>
+                <th>Policy</th>
                 <th>Upgrade cost</th>
                 <th>Actions</th>
             </tr>
@@ -13,7 +12,6 @@
         <tbody>
             <tr v-for="(policy, index) in activePolicies" :key="index">
                 <td><span class="badge bg-info">{{policy.policy.category}}</span></td>
-                <td>{{index + 1}}</td>
                 <td>{{policy.policy.name}}</td>
                 <td>{{policy.effectDescription}}</td>
                 <td>{{policy.upgradeCost}}</td>

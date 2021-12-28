@@ -1,6 +1,12 @@
 <template>
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+      <a href="/"><img src="/img/logo_small_400px.png" alt="Save the World logo" width="200"/></a>
+    </div>
+  </nav>
   <div class="container-flex m-3 p-3">
-    <h1>Save the World</h1>
+    <h1>
+      Save the World</h1>
         <transition name="fade">
         <div v-if="!loggedIn()">
           <LoginComponent @login="doLogin"></LoginComponent>

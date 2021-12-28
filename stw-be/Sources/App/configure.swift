@@ -61,9 +61,12 @@ fileprivate func initializeDatabase(db: Database) {
             
             /// headcount
             let population: Int
+            let budget: Double
+            let gini: Double
+            let edi: Double
         }
      
-        let url = URL(fileURLWithPath: "Data/CountryEmissionGDPPopulation.json")
+        let url = URL(fileURLWithPath: "Data/CountryEmissionGDPPopulationBudgetGiniEdi.json")
         do {
             let data = try Data(contentsOf: url)
             let decoder = JSONDecoder()
@@ -81,7 +84,10 @@ fileprivate func initializeDatabase(db: Database) {
                         countryCode: loadedCountry.twoCharacterCode,
                         baseYearlyEmissions: loadedCountry.emission / totalEmissions * baseEmission,
                         baseGDP: loadedCountry.gdp / 1000.0,
-                        population: loadedCountry.population)
+                        population: loadedCountry.population,
+                        budgetSurplus: loadedCountry.budget,
+                        giniRating: loadedCountry.gini,
+                        educationDevelopmentIndex: loadedCountry.edi)
             }
         } catch {
             fatalError("Error during load: \(error)")

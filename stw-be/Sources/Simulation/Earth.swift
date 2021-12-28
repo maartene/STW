@@ -40,6 +40,8 @@ public struct Earth {
     /// the average global emissions in the base year (in gigaton carbon)
     public static let BASE_GLOBAL_EMISSIONS_2015 = 10.34
     
+    public var globalPolicies = [Policy]()
+    
     public init() {
         
     }

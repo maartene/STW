@@ -49,6 +49,12 @@ public struct Country: Codable {
     /// The current available country points for the country - this is your main currency for enacting policies and levelling up.
     public var countryPoints = 1
     
+    public var budgetSurplus: Double
+    
+    public var giniRating: Double
+    
+    public var educationDevelopmentIndex: Double
+    
     /// Returns the net GDP this country has to spend, after 'paying' for damages caused by temperature increase.
     /// - Parameter earth: the simulated earth this country is a part of.
     /// - Returns: the GDP for this country in 1000 US$ (taking damages of temperature change into account).
@@ -65,7 +71,7 @@ public struct Country: Codable {
     ///   - baseYearlyEmissions: The base yearly emissions (in gigaton carbon).
     ///   - baseGDP: The base GDP (in 1000 US$)
     ///   - population: The current population of the country
-    public init(name: String, countryCode: String, baseYearlyEmissions: Double, baseGDP: Double, population: Int) {
+    public init(name: String, countryCode: String, baseYearlyEmissions: Double, baseGDP: Double, population: Int, budgetSurplus: Double, giniRating: Double, educationDevelopmentIndex: Double) {
         self.name = name
         self.countryCode = countryCode
         self.baseYearlyEmissions = baseYearlyEmissions
@@ -74,6 +80,9 @@ public struct Country: Codable {
         self.GDP = baseGDP
         self.yearlyEmissions = baseYearlyEmissions
         //self.availableCommands = Self.defaultCommands()
+        self.budgetSurplus = budgetSurplus
+        self.giniRating = giniRating
+        self.educationDevelopmentIndex = educationDevelopmentIndex
     }
     
     
@@ -128,16 +137,7 @@ public struct Country: Codable {
     
     /// The policies that can be enacted by this country, regardless of whether the are already enacted.
     public var availablePolicies: [Policy] {
-        [
-            Policy(name: "Set emission reduction target 10%", effects: [
-                .changeEmissionsTowardsTarget(percentageReductionPerYear: 1, target: 10)], baseCost: 1, prerequisites: [], policyCategory: .emissionTarget),
-            Policy(name: "Set emission reduction target 20%", effects: [
-                .changeEmissionsTowardsTarget(percentageReductionPerYear: 1, target: 20)], baseCost: 5, prerequisites: ["Set emission reduction target 10%"], policyCategory: .emissionTarget),
-            Policy(name: "Set emission reduction target 50%", description: "Note: this is an agressive reduction that impacts GDP.", effects: [
-                .changeEmissionsTowardsTarget(percentageReductionPerYear: 1, target: 50)], baseCost: 27, prerequisites: ["Set emission reduction target 20%"], policyCategory: .emissionTarget),
-            Policy(name: "Set emission reduction target 100%", description: "Note: this is an agressive reduction that impacts GDP.", effects: [
-                .changeEmissionsTowardsTarget(percentageReductionPerYear: 1, target: 100)], baseCost: 210, prerequisites: ["Set emission reduction target 100%"], policyCategory: .emissionTarget),
-        ]
+        AllPolicies.getPolicyFor(self)
     }
     
     /// The policies this country can enact.
@@ -145,18 +145,6 @@ public struct Country: Codable {
     public var enactablePolicies: [Policy] {
         availablePolicies.filter { policy in
             activePolicies.contains(where: { $0.name == policy.name }) == false
-        }
-        .filter { policy in 
-            if policy.prerequisitesNames.count == 0 {
-                return true
-            }
-
-            for prerequisites in policy.prerequisitesNames {
-                if activePolicies.contains(where: { $0.name == prerequisites }) {
-                    return true
-                }
-            }
-            return false
         }
     }
     
@@ -186,8 +174,8 @@ public struct Country: Codable {
         
         let policiesInSameCategory = activePolicies.filter({$0.category == policy.category})
         
-        if let limit = policy.category.policyLimit, policiesInSameCategory.count >= limit, let firstIndex = updatedCountry.activePolicies.firstIndex(where: { $0.category == policy.category }) {
-            updatedCountry.activePolicies.remove(at: firstIndex)
+        if let limit = policy.category.policyLimit, policiesInSameCategory.count >= limit {
+            return (self, "You already have the maximum (\(limit)) number of policies in the \(policy.category) category active.")
         }
         
         updatedCountry.countryPoints -= policy.baseCost

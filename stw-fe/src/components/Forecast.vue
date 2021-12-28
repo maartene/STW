@@ -1,46 +1,16 @@
 <template>
+    <p class="text-muted">Note: forecasts require manual <a href="#" v-on:click="buildCharts">refresh</a>, because of this computations required to update the forecasts.</p>
     <h3>Forecasted temperature</h3>
     <canvas id="myChart" width="400" height="100"></canvas>
-    
+    <p class="my-5"></p>
+    <h3>Forecasted country emissions</h3>
+    <canvas id="countryChart" width="400" height="100"></canvas>
+    <p class="my-3"></p>
+    <button class="btn btn-secondary" v-on:click="buildCharts">Refresh</button>
 </template>
 
 <script>
 import Chart from 'chart.js/auto';
-
-// const mychardata  = {
-//     type: 'line',
-//     data: {
-//         labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
-//         datasets: [{
-//             label: '# of Votes',
-//             data: [12, 19, 3, 5, 2, 3],
-//             backgroundColor: [
-//                 'rgba(255, 99, 132, 0.2)',
-//                 'rgba(54, 162, 235, 0.2)',
-//                 'rgba(255, 206, 86, 0.2)',
-//                 'rgba(75, 192, 192, 0.2)',
-//                 'rgba(153, 102, 255, 0.2)',
-//                 'rgba(255, 159, 64, 0.2)'
-//             ],
-//             borderColor: [
-//                 'rgba(255, 99, 132, 1)',
-//                 'rgba(54, 162, 235, 1)',
-//                 'rgba(255, 206, 86, 1)',
-//                 'rgba(75, 192, 192, 1)',
-//                 'rgba(153, 102, 255, 1)',
-//                 'rgba(255, 159, 64, 1)'
-//             ],
-//             borderWidth: 1
-//         }]
-//     },
-//     options: {
-//         scales: {
-//             y: {
-//                 beginAtZero: true
-//             }
-//         }
-//     }
-// }
 
 const axios = require('axios');
 
@@ -48,22 +18,31 @@ export default {
     name: "Forecast",
     data() {
         return {
-            chart: {}
+            countryChart: {},
+            earthChart: {},
         }
     },
     props: {
         countryID: String
     },
     methods: {
-        refresh() {
+        buildCharts() {    
             axios.get(`${this.STW_API_ENDPOINT}/game/${this.countryID}/forecast`)
             .then(response => {
-                //console.log(response.data);
+                if (this.countryChart.data) {
+                    this.countryChart.destroy();
+                }
+
+                if (this.earthChart.data) {
+                    this.earthChart.destroy();
+                }
 
                 const labels = response.data.map(value => { return value.year })
                 const temps = response.data.map(value => { return value.currentTemperature })
+                const emissions = response.data.map(value => { return value.countryEmissions * 1000 })
 
-                const chartData = {
+
+                const earthChartData = {
                     type: "line",
                     data: {
                         "labels": labels,
@@ -73,6 +52,9 @@ export default {
                                 data: temps,
                                 borderColor: [
                                     'rgba(255,0,0,1)'
+                                ],
+                                backgroundColor: [
+                                    'rgba(255,0,0,0.5)'
                                 ],
                                 borderWidth: 1
                             }
@@ -92,15 +74,45 @@ export default {
                 }
 
                 const ctx = document.getElementById('myChart');
-                this.chart = new Chart(ctx, chartData);
+                this.earthChart = new Chart(ctx, earthChartData);
+
+                const countryChartData = {
+                    type: "line",
+                    data: {
+                        "labels": labels,
+                        datasets: [
+                            {
+                                label: "Emissions",
+                                data: emissions,
+                                borderColor: [
+                                    'rgba(0,0,0,1)'
+                                ],
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: "Million tonnes Carbon",
+                                }
+                            }
+                        }
+                    }
+                    
+                }
+                const countryCtx = document.getElementById('countryChart');
+                this.countryChart = new Chart(countryCtx, countryChartData);
             })
             .catch(e => {
-                console.log(`error: ${e}`);
+                console.log(e);
             })
         }
     },
     mounted() {
-        this.refresh();
+        this.buildCharts();
     }
 }
 </script>

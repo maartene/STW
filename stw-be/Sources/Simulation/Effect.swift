@@ -16,6 +16,8 @@ public enum Effect: Codable, Equatable {
     case extraEmissions(percentage: Double)
     case freePoints(points: Int)
     case extraGDP(percentage: Double)
+    case extraGini(points: Double)
+    case extraEDI(percentage: Double)
     
     /// A 'pretty' description of this effects consequences for a country, when applied.
     func description(level: Int = 1) -> String {
@@ -32,6 +34,10 @@ public enum Effect: Codable, Equatable {
             return "\(percentage * Double(level)  > 0 ? "Increases" : "Decreases") emissions at a rate of \(percentage * Double(level))% of 2015 per year."
         case .extraGDP(let percentage):
             return "\(percentage * Double(level)  > 0 ? "Increases" : "Decreases") GDP at a rate of \(percentage * Double(level))% of 2015 per year."
+        case .extraGini(let points):
+            return "\(points * Double(level)  > 0 ? "Increases" : "Decreases") inequality at a rate of \(points * Double(level)) points per year."
+        case .extraEDI(let percentage):
+            return "\(percentage * Double(level)  > 0 ? "Increases" : "Decreases") education development index at a rate of \(percentage * Double(level))% per year."
         }
     }
     
@@ -62,10 +68,16 @@ public enum Effect: Codable, Equatable {
             updatedCountry.countryPoints += points * level
             
         case .extraEmissions(let percentage):
-            updatedCountry.yearlyEmissions += updatedCountry.baseYearlyEmissions * 0.01 * percentage * Double(level) / 24
+            updatedCountry.yearlyEmissions += updatedCountry.baseYearlyEmissions * 0.01 * percentage * Double(level) / 24.0
             
         case .extraGDP(let percentage):
-            updatedCountry.GDP += updatedCountry.baseGDP * 0.01 * percentage * Double(level) / 24
+            updatedCountry.GDP += updatedCountry.baseGDP * 0.01 * percentage * Double(level) / 24.0
+            
+        case .extraGini(let points):
+            updatedCountry.giniRating += points * Double(level) / 24.0
+            
+        case .extraEDI(let percentage):
+            updatedCountry.educationDevelopmentIndex += percentage * 0.01 * updatedCountry.educationDevelopmentIndex * Double(level) / 24.0
         }
                 
         return updatedCountry
