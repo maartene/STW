@@ -57,6 +57,7 @@ To run the front-end locally, you need `node.js` and `npm` installed.
 * `POST /game/[countryModel UUID]/policies` : sends a policy to enact (in the payload of the request as JSON). Returns a message (string) indicating what happened.
 * `POST /game/[countryModel UUID]/policies/revoke` : sends a policy to revoke (in the payload of the request as JSON). Returns a message (string) indicating what happened.
 * `POST /game/[countryModel UUID]/policies/levelup` : sends a policy to levelup (in the payload of the request as JSON). Returns a message (string) indicating what happened.
+* `GET game/[countryModel UUID]/forecast/` : retrieves forecasted versions of the current earth and country in JSON format. 
 
 ## Playing the game
 Coming soon.

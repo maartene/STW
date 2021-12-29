@@ -7,9 +7,13 @@
 
 import Foundation
 
+/// A datastructure that holds all the policies known to the game.
 struct AllPolicies {
+    
     private static let all = getAllPolicies()
     
+    /// Builds an array of all policies
+    /// - Returns: an array of all policies
     private static func getAllPolicies() -> [Policy] {
         var result = [Policy]()
         
@@ -70,6 +74,9 @@ struct AllPolicies {
         return result
     }
     
+    /// Returns a list of all policies that apply to a country, by evaluating the policies conditions.
+    /// - Parameter country: the country to evaluate policies for
+    /// - Returns: all `Policy` that apply to the country.
     public static func getPolicyFor(_ country: Country) -> [Policy] {
         all.filter {
             $0.condition.evaluate(for: country)

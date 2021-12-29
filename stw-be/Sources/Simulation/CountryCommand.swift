@@ -5,6 +5,9 @@
 //  Created by Maarten Engels on 18/12/2021.
 //
 
+// TODO: need to change these to hard coded commands in seperate file 'allCommands' (like 'allPolicies')
+// TODO: use Condition system (just like Policy), instead of 'prerequisites'.
+
 import Foundation
 
 /// Definition of all possible commands that can be performed by a country.

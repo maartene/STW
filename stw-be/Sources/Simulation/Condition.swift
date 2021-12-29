@@ -7,22 +7,50 @@
 
 import Foundation
 
-public indirect enum Condition: Codable, Equatable {
+/// An data structure that you can use to describe logical expressions about `Country`s.
+/// Use 'composition' cases such as `.or`, `.and` and `.not` to express more complex conditions.
+public enum Condition: Codable, Equatable {
+    
+    /// The empty case always evaluates to `true`
     case empty
     
-    case or([Condition])
-    case and([Condition])
+    /// `or` returns true if one of the Conditions passed as an array evaluates to `true`. Returns `false` if none evaluate to `true`.
+    indirect case or([Condition])
     
+    /// `and` returns true if all of the Conditions passed as an array evaluate to `true`. Returns `false` if a single one evaluates to `false`.
+    indirect case and([Condition])
+    
+    /// `not` returns the logical inverse of what `condition` evaluates to.
+    indirect case not(Condition)
+    
+    /// `True` if the `Country`s wealth rating (GDP per capita) is less than or equal to `ranking`. False otherwise.
     case lessThanOrEqualWealth(ranking: Rating)
+    
+    /// `True` if the `Country`s wealth rating (GDP per capita) is greater than or equal to `ranking`. False otherwise.
     case greaterThanOrEqualWealth(ranking: Rating)
+    
+    /// `True` if the `Country`s Education Development Index rating is greater than or equal to `ranking`. False otherwise.
     case greaterThanOrEqualEDI(ranking: Rating)
+    
+    /// `True` if the `Country`s emissions per capita rating is greater than or equal to `ranking`. False otherwise.
     case greaterThanOrEqualEmissionsPerCapita(ranking: Rating)
-    case greaterThanOrEqualBudget(ranking: Rating)
+    
+    /// `True` if the `Country`s budget rating (surpluss/deficit) is less than or equal to `ranking`. False otherwise.
     case lessThanOrEqualBudget(ranking: Rating)
+    
+    /// `True` if the `Country`s budget rating (surpluss/deficit) is greater than or equal to `ranking`. False otherwise.
+    case greaterThanOrEqualBudget(ranking: Rating)
+
+    /// `True` if the `Country`s equality rating ('Gini-index') is less than or equal to `ranking`. False otherwise.
     case lessThanOrEqualEquality(ranking: Rating)
     
+    /// `True` if the `Country` has a policty with `name` currently active. False otherwise.
     case hasActivePolicy(policyName: String)
     
+    
+    /// Evaluates the expression
+    /// - Parameter country: the country to evaluate the expression for.
+    /// - Returns: the result of the expression.
     func evaluate(for country: Country) -> Bool {
         switch self {
         case .empty:
@@ -42,6 +70,9 @@ public indirect enum Condition: Codable, Equatable {
                 }
             }
             return true
+            
+        case .not(let condition):
+            return condition.evaluate(for: country) == false
             
         case .lessThanOrEqualWealth(let ranking):
             return Rating.wealthRatingFor(country) <= ranking

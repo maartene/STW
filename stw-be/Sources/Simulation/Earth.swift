@@ -40,8 +40,6 @@ public struct Earth {
     /// the average global emissions in the base year (in gigaton carbon)
     public static let BASE_GLOBAL_EMISSIONS_2015 = 10.34
     
-    public var globalPolicies = [Policy]()
-    
     public init() {
         
     }
@@ -76,7 +74,14 @@ public struct Earth {
         
         return simulatedPlanet.currentTemperature
     }
-
+    
+    /// Forecasts the expected temperature in the year, based on constant yearly emissions. Returns all values during the forecast.
+    /// - Parameters:
+    ///   - year: the year to forecast to.
+    ///   - yearlyEmissions: the constant yearly emissions to forecast with (in Gigatonnes Carbon)
+    /// - Returns: an array of all simulated `Earth`s
+    ///
+    /// Useful for creating a time series.
     public func forecastSeries(to year: Int, yearlyEmissions: Double) -> [Earth] {
         assert(year >= currentYear) 
         

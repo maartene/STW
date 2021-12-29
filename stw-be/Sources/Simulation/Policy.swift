@@ -32,16 +32,23 @@ public struct Policy: Codable, Equatable {
     /// Determines the sequence in which policies are applied to a country during an update. Lower values are applied first. `0` indicated 'neutral'.
     ///
     /// I.e. if you have something you want to apply first, give a big negative value. If you want something to be applied last, give a big positive number.
-    let priority: Int
+    //let priority: Int
     
+    /// the condition that determines when this policy can be applied by a country.
     let condition: Condition
 
+    /// the category this policy falls under. Used to determine the maximum number of policies of a certain category a country can have enacted.
     let category: PolicyCategory
 
+    /// For Codable confomance
     enum CodingKeys: CodingKey {
-        case name, description, level, effects, baseCost, priority, condition, category
+        case name, description, level, effects, baseCost, //priority,
+             condition, category
     }
-
+    
+    /// Codable `encode` function.
+    ///
+    /// We use a custom `encode` function to allow for adding and removing properties, without reseeding the database.
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(name, forKey: .name)
@@ -49,11 +56,14 @@ public struct Policy: Codable, Equatable {
         try container.encode(level, forKey: .level)
         try container.encode(effects, forKey: .effects)
         try container.encode(baseCost, forKey: .baseCost)
-        try container.encode(priority, forKey: .priority)
+        //try container.encode(priority, forKey: .priority)
         try container.encode(condition, forKey: .condition)
         try container.encode(category, forKey: .category)
     }
-
+    
+    /// Codable initializer.
+    ///
+    /// We use a custom Codable `init` to allow for adding and removing properties, without reseeding the database.
     public init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
         name = try values.decode(String.self, forKey: .name)
@@ -61,7 +71,7 @@ public struct Policy: Codable, Equatable {
         level = try values.decode(Int.self, forKey: .level)
         effects = try values.decode([Effect].self, forKey: .effects)
         baseCost = try values.decode(Int.self, forKey: .baseCost)
-        priority = try values.decode(Int.self, forKey: .priority)
+        //priority = try values.decode(Int.self, forKey: .priority)
         condition = (try? values.decode(Condition.self, forKey: .condition)) ?? .empty
         category = (try? values.decode(PolicyCategory.self, forKey: .category)) ?? .miscelaneous
     }
@@ -74,16 +84,16 @@ public struct Policy: Codable, Equatable {
     ///   - level: The level you want to start this policy. Default: 1
     ///   - effects: The way this policy affects countries, defined as an array of `Effect`.
     ///   - baseCost: The cost of this policy to enact it.
-    ///   - priority: The priority of this policy. Default: 0 ('neutral')
+    ///   - condition: A `Condition` that describes when this policy can be applied. Default: .empty
+    ///   - policyCategory: The category to assign this policy to. Default: .miscelaneous
     ///
     ///   Policies are applied to countries in sequence of priority from low to high. If you have something you want to apply first, give a big negative value. If you want something to be applied last, give a big positive number.
-    public init(name: String, description: String? = nil, level: Int = 1, effects: [Effect], baseCost: Int, priority: Int = 0, condition: Condition = .empty, policyCategory: PolicyCategory = .miscelaneous) {
+    public init(name: String, description: String? = nil, level: Int = 1, effects: [Effect], baseCost: Int, condition: Condition = .empty, policyCategory: PolicyCategory = .miscelaneous) {
         self.name = name
         self.description = description ?? name
         self.level = level
         self.effects = effects
         self.baseCost = baseCost
-        self.priority = priority
         self.condition = condition
         self.category = policyCategory
     }
@@ -103,7 +113,7 @@ public struct Policy: Codable, Equatable {
         return updatedCountry
     }
     
-    /// A string version that describes the various effects of this command.
+    /// A string version that describes the various effects of this policy.
     public func effectDescription() -> String {
         if effects.count > 0 {
             let effectDescriptions = effects.map { $0.description(level: level) }
@@ -114,6 +124,9 @@ public struct Policy: Codable, Equatable {
     }
 }
 
+/// A datastructure to organize policies.
+///
+/// Can be used to determine the maximum number of policies in a certain category a country can have active.
 public enum PolicyCategory: String, Codable {
     case emissionTarget = "Emission Target"
     case co2storage = "CO2 storage"
@@ -121,7 +134,8 @@ public enum PolicyCategory: String, Codable {
     case economic
     case education
     case political
-
+    
+    /// The maximum number of active policies of a category a country can have active. `nil` means: no maximum.
     var policyLimit: Int? {
         switch self {
         case .emissionTarget:

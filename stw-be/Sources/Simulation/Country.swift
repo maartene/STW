@@ -49,10 +49,13 @@ public struct Country: Codable {
     /// The current available country points for the country - this is your main currency for enacting policies and levelling up.
     public var countryPoints = 1
     
+    /// The budget surplus (positive values) or deficit (negative values) in % GDP
     public var budgetSurplus: Double
     
+    /// The amount of (in)equality in the country. Range: (0...1). Higher values indicate more inequality.
     public var giniRating: Double
     
+    /// The level of education in the country, as determined using the EDI. Range: (0...1). Higer values indicate better education.
     public var educationDevelopmentIndex: Double
     
     /// Returns the net GDP this country has to spend, after 'paying' for damages caused by temperature increase.
@@ -71,6 +74,9 @@ public struct Country: Codable {
     ///   - baseYearlyEmissions: The base yearly emissions (in gigaton carbon).
     ///   - baseGDP: The base GDP (in 1000 US$)
     ///   - population: The current population of the country
+    ///   - budgetSurplus: The budget surplus (positive values) or deficit (negative values) in % GDP
+    ///   - giniRating: The equality of the country, measured using the gini index.
+    ///   - educationDevelopmentIndex: The level of education in the country, as determined using the EDI. Range: (0...1). Higer values indicate better education.
     public init(name: String, countryCode: String, baseYearlyEmissions: Double, baseGDP: Double, population: Int, budgetSurplus: Double, giniRating: Double, educationDevelopmentIndex: Double) {
         self.name = name
         self.countryCode = countryCode
@@ -85,7 +91,6 @@ public struct Country: Codable {
         self.educationDevelopmentIndex = educationDevelopmentIndex
     }
     
-    
     /// Execute a country command.
     /// - Parameters:
     ///   - command: the command to execute.
@@ -95,7 +100,8 @@ public struct Country: Codable {
         let result = command.applyEffect(to: self, in: earth)
         return result
     }
-        
+    
+    /// The amount of country points you get in each update.
     public var countryPointsPerTick: Int {
         let earth = Earth()
         
@@ -109,11 +115,11 @@ public struct Country: Codable {
     public mutating func tick(in earth: Earth) {
         countryPoints += 1
         
-        let sortedActivePolicies = activePolicies.sorted {
-            $0.priority < $1.priority
-        }
+//        let sortedActivePolicies = activePolicies.sorted {
+//            $0.priority < $1.priority
+//        }
         
-        for policy in sortedActivePolicies {
+        for policy in activePolicies {
             self = policy.applyEffects(to: self, in: earth)
         }
     }
@@ -219,6 +225,11 @@ public struct Country: Codable {
         return (updatedCountry, "Successfully upgraded policy '\(policy.name)'")
     }
     
+    /// Forecasts what the country would look like in the year requested, in a constant earth.
+    /// - Parameters:
+    ///   - year: the year to forecast to
+    ///   - earth: the (constant) earth to simulate in.
+    /// - Returns: a forecasted country in the year `year`.
     public func forecast(to year: Int, in earth: Earth) -> Country {
         var forecastCountry = self
         for _ in earth.currentYear ..< year {
@@ -229,6 +240,13 @@ public struct Country: Codable {
         return forecastCountry
     }
 
+    /// Forecasts what the country would look like in the year requested, in a constant earth.
+    /// - Parameters:
+    ///   - year: the year to forecast to
+    ///   - earth: the (constant) earth to simulate in.
+    /// - Returns: an array of forecasted `Country`s to the specified.
+    ///
+    /// Useful for creating a time series.
     public func forecastSeries(to year: Int, in earth: Earth) -> [Country] {
         assert(year >= earth.currentYear)
         

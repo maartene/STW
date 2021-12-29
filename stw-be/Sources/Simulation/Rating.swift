@@ -7,9 +7,19 @@
 
 import Foundation
 
+/// Describes a quality rating an indicator.
+///
+/// Contains functions for obtaining a rating for various country indicators. A rating is `Comparable`, so you can evaluate:
+/// ```
+/// .A > .B // true
+/// .C < .D // false
+/// ```
 public enum Rating: Comparable, Codable {
     case undefined, F, E, D, C, B, A, S
     
+    /// Returns the rating as a string.
+    ///
+    /// Relying on just `Codable` returns a JSON object.
     public var stringValue: String {
         switch self {
         case .S:
@@ -23,14 +33,17 @@ public enum Rating: Comparable, Codable {
         case .D:
             return "D"
         case .E:
-            return "D"
+            return "E"
         case .F:
-            return "D"
+            return "F"
         case .undefined:
             return "undefined"
         }
     }
     
+    /// How this country rates when it comes to per capita wealth (GDP/population). Higher wealth leads to higher ranking.
+    /// - Parameter country: the country to rate
+    /// - Returns: the rating.
     public static func wealthRatingFor(_ country: Country) -> Rating {
         let wealthPerCapita = country.GDP / Double(country.population) / 365.0
         
@@ -55,6 +68,11 @@ public enum Rating: Comparable, Codable {
         }
     }
     
+    /// How this country rates when it comes to budget surplus (or deficit). Lower deficit/higher surplus leads to higher ranking.
+    /// - Parameter country: the country to rate
+    /// - Returns: the rating.
+    ///
+    /// A surplus always leads to a rating at least A
     public static func budgetSurplusRatingFor(_ country: Country) -> Rating {
         switch country.budgetSurplus {
         case -Double.infinity ..< -10:
@@ -75,7 +93,11 @@ public enum Rating: Comparable, Codable {
         }
     }
     
-    // 37,5 is average
+    /// How this country rates when it comes to equality (Gini-index). Lower Gini-index (means: more equality) leads to higher rating.
+    /// - Parameter country: the country to rate
+    /// - Returns: the rating.
+    ///
+    /// 37,5 is average
     public static func equalityRatingFor(_ country: Country) -> Rating {
         switch country.giniRating {
         case 50 ..< Double.infinity:
@@ -98,7 +120,11 @@ public enum Rating: Comparable, Codable {
         }
     }
     
-    // average 0.899
+    /// How this country rates when it comes to education (Education Development Index). Higher EDI score leads to better rating.
+    /// - Parameter country: the country to rate
+    /// - Returns: the rating.
+    ///
+    /// average 0.899
     public static func ediRatingFor(_ country: Country) -> Rating {
         switch country.educationDevelopmentIndex {
         case 0 ..< 0.6:
@@ -121,6 +147,9 @@ public enum Rating: Comparable, Codable {
         }
     }
     
+    /// How this country rates when it comes to emissions per capita. Lower emissions lead to better scores.
+    /// - Parameter country: the country to rate
+    /// - Returns: the rating.
     public static func emissionPerCapitaRatingFor(_ country: Country) -> Rating {
         let emissionsPerCapita = country.yearlyEmissions * 1_000_000_000 / Double(country.population)
         

@@ -10,8 +10,8 @@ import Foundation
 /// Defines an effect that changes countries.
 public enum Effect: Codable, Equatable {
     
-    case changeEmissionsDirect(percentage: Double)
-    case changeGDPDirect(percentage: Double)
+//    case changeEmissionsDirect(percentage: Double)
+//    case changeGDPDirect(percentage: Double)
     case changeEmissionsTowardsTarget(percentageReductionPerYear: Double, target: Double)
     case extraEmissions(percentage: Double)
     case freePoints(points: Int)
@@ -22,10 +22,10 @@ public enum Effect: Codable, Equatable {
     /// A 'pretty' description of this effects consequences for a country, when applied.
     func description(level: Int = 1) -> String {
         switch self {
-        case .changeEmissionsDirect(let percentage):
-            return "Directly \(percentage > 0 ? "increases" : "decreases") emissions by \(percentage * Double(level))%"
-        case .changeGDPDirect(let percentage):
-            return "Directly \(percentage * Double(level)  > 0 ? "increases" : "decreases") GDP by \(percentage * Double(level))%"
+//        case .changeEmissionsDirect(let percentage):
+//            return "Directly \(percentage > 0 ? "increases" : "decreases") emissions by \(percentage * Double(level))%"
+//        case .changeGDPDirect(let percentage):
+//            return "Directly \(percentage * Double(level)  > 0 ? "increases" : "decreases") GDP by \(percentage * Double(level))%"
         case .changeEmissionsTowardsTarget(let percentage, let target):
             return "Lowers emissions towards \(target)% less than 2015 value by \(percentage * Double(level))% per year."
         case .freePoints(let points):
@@ -53,10 +53,10 @@ public enum Effect: Codable, Equatable {
         var updatedCountry = country
         
         switch self {
-        case .changeEmissionsDirect(let percentage):
-            updatedCountry.yearlyEmissions = updatedCountry.baseYearlyEmissions * (1.0 + 0.01 * percentage * Double(level))
-        case .changeGDPDirect(let percentage):
-            updatedCountry.GDP = updatedCountry.baseGDP * (1.0 + 0.01 * percentage * Double(level))
+//        case .changeEmissionsDirect(let percentage):
+//            updatedCountry.yearlyEmissions = updatedCountry.baseYearlyEmissions * (1.0 + 0.01 * percentage * Double(level))
+//        case .changeGDPDirect(let percentage):
+//            updatedCountry.GDP = updatedCountry.baseGDP * (1.0 + 0.01 * percentage * Double(level))
         case .changeEmissionsTowardsTarget(let percentageReductionPerYear, let target):
             let targetEmissions = updatedCountry.baseYearlyEmissions * (1.0 - 0.01 * target)
             if updatedCountry.yearlyEmissions > targetEmissions {
