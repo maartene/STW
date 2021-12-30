@@ -55,8 +55,8 @@ export default {
     emits: ['login'],
     methods: {
         fill() {
-            this.earthID = "15B3FAD8-368C-4437-94F6-8B539A774ADC";
-            this.countryID = "6A4ECD84-8515-4505-B8EE-4F1E9C5037A8";
+            this.earthID = "F4612A66-C66D-4988-A1C8-8466FBBA3BCD";
+            this.countryID = "DE5B394F-7253-44A8-AB90-9A6E88F3EE5F";
             this.login();
         },
         claim() {
