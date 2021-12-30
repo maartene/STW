@@ -146,11 +146,13 @@ struct GameController: RouteCollection {
     struct PolicyInfo: Content {
         let policy: Policy
         let effectDescription: String
+        let conditionDescription: String
         let upgradeCost: Int
         
         init(policy: Policy) {
             self.policy = policy
             self.effectDescription = policy.effectDescription()
+            self.conditionDescription = policy.condition.conditionDescription
             self.upgradeCost = policy.upgradeCost
         }
     }
@@ -229,8 +231,13 @@ struct GameController: RouteCollection {
         let year: Int
         let currentTemperature: Double
         let currentConcentration: Double
-        let countryEmissions: Double
+        let countryEmissionsPerCapita: Double
+        let countryWealthPerCapita: Double
+        let countryGini: Double
+        let countryEDI: Double
+        let countryBudget: Double
     }
+    
     func getForecast(req: Request) async throws -> [Forecast] {
         guard let countryModel = try await CountryModel.find(req.parameters.get("countryModelID"), on: req.db) else {
             req.logger.warning("Could not find countryModel with id: \(req.parameters.get("countryModelID") ?? "unknown")")
@@ -261,7 +268,12 @@ struct GameController: RouteCollection {
                 year: earth.currentYear, 
                 currentTemperature: earth.currentTemperature, 
                 currentConcentration: earth.currentConcentration, 
-                countryEmissions: countryForecasts[i].yearlyEmissions)
+                countryEmissionsPerCapita: countryForecasts[i].yearlyEmissions / Double(countryForecasts[i].population),
+                countryWealthPerCapita: countryForecasts[i].GDP * 1000.0 / Double(countryForecasts[i].population) / 365.0,
+                countryGini: countryForecasts[i].giniRating,
+                countryEDI: countryForecasts[i].educationDevelopmentIndex,
+                countryBudget: countryForecasts[i].budgetSurplus
+            )
             result.append(forecast)
         }
 

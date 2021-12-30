@@ -147,7 +147,8 @@ export default {
                             baseCost: 0,
                         },
                         "effectDescription": "",
-                        "upgradeCost": 0
+                        "upgradeCost": 0,
+                        "conditionDescription": ""
                     }
                 ]
             },

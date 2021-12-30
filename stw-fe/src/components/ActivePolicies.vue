@@ -11,7 +11,7 @@
         </thead>
         <tbody>
             <tr v-for="(policy, index) in activePolicies" :key="index">
-                <td><span class="badge bg-info">{{policy.policy.category}}</span></td>
+                <td><span class="badge bg-secondary">{{policy.policy.category}}</span></td>
                 <td>{{policy.policy.name}}</td>
                 <td>{{policy.effectDescription}}</td>
                 <td>{{policy.upgradeCost}}</td>

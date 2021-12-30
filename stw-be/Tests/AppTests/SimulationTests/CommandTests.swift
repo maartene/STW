@@ -37,13 +37,13 @@ class CommandTests: XCTestCase {
         let result = netherlands.executeCommand(command, in: earth)
         XCTAssertEqual(result.resultMessage, "Example command succesfully applied.")
     }
-    
-    func testSubsidiseFossilFuels() throws {
-        let command = try CountryCommand.getCommand("Subsidise fossil fuels")
-        let result = netherlands.executeCommand(command, in: earth)
-        XCTAssertGreaterThan(result.updatedCountry.baseGDP, netherlands.baseGDP)
-        XCTAssertGreaterThan(result.updatedCountry.yearlyEmissions, netherlands.yearlyEmissions)
-    }
+        
+//    func testSubsidiseFossilFuels() throws {
+//        let command = try CountryCommand.getCommand("Subsidise fossil fuels")
+//        let result = netherlands.executeCommand(command, in: earth)
+//        XCTAssertGreaterThan(result.updatedCountry.baseGDP, netherlands.baseGDP)
+//        XCTAssertGreaterThan(result.updatedCountry.yearlyEmissions, netherlands.yearlyEmissions)
+//    }
     
 //    func testReverseCommand() throws {
 //        let command = try CountryCommand.getCommand("Subsidise fossil fuels")

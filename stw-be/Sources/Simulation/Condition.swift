@@ -99,4 +99,35 @@ public enum Condition: Codable, Equatable {
             return country.activePolicies.contains(where: { $0.name == policyName })
         }
     }
+    
+    public var conditionDescription: String {
+        switch self {
+        case .empty:
+            return "No requirement."
+        case .and(let conditions):
+            return "The following are all valid:\n" +
+            conditions.map {$0.conditionDescription}.joined(separator: " & ")
+        case .or(let conditions):
+            return "At least one of the following are is valid:\n" + "\t" +
+            conditions.map {$0.conditionDescription}.joined(separator: " or ")
+        case .not(let condition):
+            return "The following condition is false:\n \t\(condition.conditionDescription)"
+        case .greaterThanOrEqualBudget(let ranking):
+            return "Your budget ranking is at least: \(ranking.stringValue)"
+        case .lessThanOrEqualBudget(let ranking):
+            return "Your budget ranking is at most: \(ranking.stringValue)"
+        case .lessThanOrEqualEquality(let ranking):
+            return "Your equality ranking is at most: \(ranking.stringValue)"
+        case .lessThanOrEqualWealth(let ranking):
+            return "Your wealth per capita ranking is at most: \(ranking.stringValue)"
+        case .greaterThanOrEqualWealth(let ranking):
+            return "Your wealth per capita ranking is at least: \(ranking.stringValue)"
+        case .greaterThanOrEqualEDI(let ranking):
+            return "Your education development index ranking is at least: \(ranking.stringValue)"
+        case .greaterThanOrEqualEmissionsPerCapita(let ranking):
+            return "Your emissions per capita ranking is at least: \(ranking.stringValue)"
+        case .hasActivePolicy(let policyName):
+            return "You have '\(policyName)' enacted."
+        }
+    }
 }

@@ -45,7 +45,7 @@ public enum Rating: Comparable, Codable {
     /// - Parameter country: the country to rate
     /// - Returns: the rating.
     public static func wealthRatingFor(_ country: Country) -> Rating {
-        let wealthPerCapita = country.GDP / Double(country.population) / 365.0
+        let wealthPerCapita = country.GDP * 1000.0 / Double(country.population) / 365.0
         
         switch wealthPerCapita {
         case 0 ..< 3.2:
@@ -77,7 +77,9 @@ public enum Rating: Comparable, Codable {
         switch country.budgetSurplus {
         case -Double.infinity ..< -10:
             return F
-        case -10 ..< -5:
+        case -10 ..< -7.5:
+            return E
+        case -7.5 ..< -5:
             return D
         case -5 ..< -2.5:
             return C

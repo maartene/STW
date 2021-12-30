@@ -52,4 +52,51 @@ final class CountryTests: XCTestCase {
         
         XCTAssertGreaterThan(country.countryPoints, netherlands.countryPoints)
     }
+    
+    func testEnactPolicy() {
+        var country = netherlands
+        country.countryPoints = Int.max
+        
+        guard let policy = country.enactablePolicies.randomElement() else {
+            XCTFail("No policy found.")
+            return
+        }
+        
+        XCTAssertFalse(country.activePolicies.contains(policy))
+        
+        let result = country.enactPolicy(policy)
+        XCTAssertTrue(result.updatedCountry.activePolicies.contains(policy))
+    }
+    
+    func testRevokePolicy() {
+        var country = netherlands
+        country.countryPoints = Int.max
+        
+        guard let policy = country.enactablePolicies.randomElement() else {
+            XCTFail("No policy found.")
+            return
+        }
+        
+        XCTAssertFalse(country.activePolicies.contains(policy))
+        
+        let result = country.enactPolicy(policy)
+        XCTAssertTrue(result.updatedCountry.activePolicies.contains(policy))
+        
+        let result2 = result.updatedCountry.revokePolicy(policy)
+        XCTAssertFalse(result2.updatedCountry.activePolicies.contains(policy))
+    }
+
+    func testPolicyAffectsCountry() {
+        var country = netherlands
+        
+        let policy = Policy(name: "testpolicy", effects: [.freePoints(points: 1)], baseCost: 0)
+        
+        var policyCountry = country.enactPolicy(policy).updatedCountry
+        XCTAssertTrue(policyCountry.activePolicies.contains(policy))
+        
+        country.tick(in: earth)
+        policyCountry.tick(in: earth)
+        
+        XCTAssertGreaterThan(policyCountry.countryPoints, country.countryPoints)
+    }
 }

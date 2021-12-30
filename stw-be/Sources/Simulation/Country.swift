@@ -14,33 +14,38 @@ import Foundation
 /// `Codable` conformance helps change these from and to JSON
 public struct Country: Codable {
     
+    // MARK: Data & Init
     /// assumed reduction in carbon emissions per thousand US$ (in gigaton).
-    public static let EMISSION_REDUCTION_PER_THOUSAND_USDOLLAR = 0.000001
+    //public static let EMISSION_REDUCTION_PER_THOUSAND_USDOLLAR = 0.000001
     
     
     /// assumed extraction of carbon per thousand US$ (i.e. net negative emissions) in gigaton carbon.
-    public static let CARBON_SCRUBBED_PER_THOUSAND_USDOLLAR = 0.0000005
+    //public static let CARBON_SCRUBBED_PER_THOUSAND_USDOLLAR = 0.0000005
     
     
     /// The country name, as per ISO
     public let name: String
     
     /// ISO 2 letter country code
+    /// Source: https://datahub.io/core/country-codes
     public let countryCode: String
     
     /// The countries base yearly emissions (in gigaton carbon) in 2015.
+    /// Source: https://datahub.io/core/co2-fossil-by-nation (normalized to climate model)
     public var baseYearlyEmissions: Double
     
     /// The countries yearly emissions (in gigaton carbon).
     public var yearlyEmissions: Double
     
     /// The base GDP (in 1000 US$) in 2015
+    /// Source: https://datahub.io/core/gdp
     public var baseGDP: Double
     
     // The current GDP (in 1000 US$)
     public var GDP: Double
     
     /// The current population of the country
+    /// Source: https://datahub.io/core/population
     public var population: Int
     
     /// The current active policies
@@ -50,12 +55,15 @@ public struct Country: Codable {
     public var countryPoints = 1
     
     /// The budget surplus (positive values) or deficit (negative values) in % GDP
+    /// Source: https://datahub.io/core/cash-surplus-deficit
     public var budgetSurplus: Double
     
     /// The amount of (in)equality in the country. Range: (0...1). Higher values indicate more inequality.
+    /// Source: https://datahub.io/core/gini-index
     public var giniRating: Double
     
     /// The level of education in the country, as determined using the EDI. Range: (0...1). Higer values indicate better education.
+    /// Source: http://www.unesco.org/new/en/archives/education/themes/leading-the-international-agenda/efareport/statistics/efa-development-index/edi-archive/ (Education For All Global Monitoring Report)
     public var educationDevelopmentIndex: Double
     
     /// Returns the net GDP this country has to spend, after 'paying' for damages caused by temperature increase.
@@ -91,16 +99,6 @@ public struct Country: Codable {
         self.educationDevelopmentIndex = educationDevelopmentIndex
     }
     
-    /// Execute a country command.
-    /// - Parameters:
-    ///   - command: the command to execute.
-    ///   - earth: the earth this command is executed in.
-    /// - Returns: an updated version of the country, with the effects of the command applied.
-    public func executeCommand(_ command: CountryCommand, in earth: Earth) -> (updatedCountry: Country, resultMessage: String) {
-        let result = command.applyEffect(to: self, in: earth)
-        return result
-    }
-    
     /// The amount of country points you get in each update.
     public var countryPointsPerTick: Int {
         let earth = Earth()
@@ -109,6 +107,8 @@ public struct Country: Codable {
         updatedCountry.tick(in: earth)
         return updatedCountry.countryPoints - countryPoints
     }
+    
+    // MARK: Update
     
     /// Updates the country
     /// - Parameter earth: the `Earth` context for the country.
@@ -123,6 +123,8 @@ public struct Country: Codable {
             self = policy.applyEffects(to: self, in: earth)
         }
     }
+    
+    // MARK: Commands
     
     /// An array of all commands available to this country.
     public var availableCommands: [CountryCommand] {
@@ -141,19 +143,7 @@ public struct Country: Codable {
         }
     }
     
-    /// The policies that can be enacted by this country, regardless of whether the are already enacted.
-    public var availablePolicies: [Policy] {
-        AllPolicies.getPolicyFor(self)
-    }
-    
-    /// The policies this country can enact.
-    /// The available policies for this country, without the ones that are already enacted.
-    public var enactablePolicies: [Policy] {
-        availablePolicies.filter { policy in
-            activePolicies.contains(where: { $0.name == policy.name }) == false
-        }
-    }
-    
+    // FIXME: refactor this to work similar to policies
     /// Gets a default list of commands.
     /// - Returns: The default list of commands every country can execute.
     private static func defaultCommands() -> [CountryCommand] {
@@ -165,6 +155,31 @@ public struct Country: Codable {
             return result
         } catch {
             fatalError("Unable to create defeault list of commands: \(error).")
+        }
+    }
+    
+    /// Execute a country command.
+    /// - Parameters:
+    ///   - command: the command to execute.
+    ///   - earth: the earth this command is executed in.
+    /// - Returns: an updated version of the country, with the effects of the command applied.
+    public func executeCommand(_ command: CountryCommand, in earth: Earth) -> (updatedCountry: Country, resultMessage: String) {
+        let result = command.applyEffect(to: self, in: earth)
+        return result
+    }
+    
+    // MARK: Policy
+    
+    /// The policies that can be enacted by this country, regardless of whether the are already enacted.
+    public var availablePolicies: [Policy] {
+        AllPolicies.getPolicyFor(self)
+    }
+    
+    /// The policies this country can enact.
+    /// The available policies for this country, without the ones that are already enacted.
+    public var enactablePolicies: [Policy] {
+        availablePolicies.filter { policy in
+            activePolicies.contains(where: { $0.name == policy.name }) == false
         }
     }
     
@@ -224,6 +239,8 @@ public struct Country: Codable {
         
         return (updatedCountry, "Successfully upgraded policy '\(policy.name)'")
     }
+    
+    // MARK: Forecasts
     
     /// Forecasts what the country would look like in the year requested, in a constant earth.
     /// - Parameters:

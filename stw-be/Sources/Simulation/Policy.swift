@@ -35,10 +35,10 @@ public struct Policy: Codable, Equatable {
     //let priority: Int
     
     /// the condition that determines when this policy can be applied by a country.
-    let condition: Condition
+    public let condition: Condition
 
     /// the category this policy falls under. Used to determine the maximum number of policies of a certain category a country can have enacted.
-    let category: PolicyCategory
+    public let category: PolicyCategory
 
     /// For Codable confomance
     enum CodingKeys: CodingKey {
