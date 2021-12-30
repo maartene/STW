@@ -42,6 +42,9 @@ public func configure(_ app: Application) throws {
     let port = Int(Environment.get("STW_BACKEND_PORT") ?? "8000") ?? 8000
     app.http.server.configuration.port = port
     
+    let host = Environment.get("STW_HOSTNAME") ?? "localhost"
+    app.http.server.configuration.hostname = host
+   
     // register routes
     try routes(app)
 }
