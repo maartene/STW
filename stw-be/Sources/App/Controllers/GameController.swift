@@ -8,10 +8,12 @@
 import Fluent
 import Vapor
 import Simulation
+import Foundation
 
 struct GameController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         let game = routes.grouped("game")
+        game.post("claim", use: claimCountry)
         
         game.group(":countryModelID") { gameGroup in
             gameGroup.get(use: getFullData)
@@ -280,5 +282,28 @@ struct GameController: RouteCollection {
         }
 
         return result
+    }
+    
+    // MARK: Claim a country
+    struct ClaimResult: Content {
+        let message: String
+        let countryID: UUID?
+        let earthID: UUID?
+        let playerID: UUID?
+    }
+    
+    func claimCountry(req: Request) async throws -> ClaimResult {
+        let availableCountryModels = try await CountryModel.query(on: req.db).filter(\.$playerID, .equal, .none).all()
+        
+        guard let availableCountryModel = availableCountryModels.randomElement() else {
+            return ClaimResult(message: "No more countries are available. Please try again at a later time.", countryID: nil, earthID: nil, playerID: nil)
+        }
+        
+        availableCountryModel.playerID = UUID()
+        
+        try await availableCountryModel.save(on: req.db)
+        
+        return ClaimResult(message: "You will play as \(availableCountryModel.country.name)", countryID: availableCountryModel.id, earthID: availableCountryModel.earthID, playerID: availableCountryModel.playerID)
+        
     }
 }

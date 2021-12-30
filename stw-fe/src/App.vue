@@ -5,8 +5,7 @@
     </div>
   </nav>
   <div class="container-flex m-3 p-3">
-    <h1>
-      Save the World</h1>
+    
         <transition name="fade">
         <div v-if="!loggedIn()">
           <LoginComponent @login="doLogin"></LoginComponent>

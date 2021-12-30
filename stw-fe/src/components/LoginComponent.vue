@@ -1,19 +1,39 @@
 <template>
-    <h1>Please login</h1>
-    <div class="mb-3">
-        <label for="countryID" class="form-label">Country ID:</label>
-        <input type="text" v-model="countryID" class="form-control" id="countryID" aria-describedby="countryHelp">
-        <div class="form-text" id="countryHelp">You should have written this down...</div>
-    </div>
-    <div class="mb-3">
-        <label for="earthID" class="form-label">Earth ID:</label>
-        <input type="text" v-model="earthID" class="form-control" id="earthID" aria-describedby="earthHelp">
-        <div class="form-text" id="earthHelp">You should have written this down...</div>
-    </div>
+    <div class="row">
+        <div class="col mx-3 border">
+            <h2>Please login</h2>
+            <div class="mb-3">
+                <label for="countryID" class="form-label">Country ID:</label>
+                <input type="text" v-model="countryID" class="form-control" id="countryID" aria-describedby="countryHelp">
+                <div class="form-text" id="countryHelp">You should have written this down...</div>
+            </div>
+            <div class="mb-3">
+                <label for="earthID" class="form-label">Earth ID:</label>
+                <input type="text" v-model="earthID" class="form-control" id="earthID" aria-describedby="earthHelp">
+                <div class="form-text" id="earthHelp">You should have written this down...</div>
+            </div>
 
-    <button type="submit" v-on:click="login" class="btn btn-primary">Submit</button>
+            <button type="submit" v-on:click="login" class="btn btn-primary mb-3">Submit</button>
 
-    <button v-on:click="fill" class="btn btn-danger">Let me in!</button>
+            <button v-on:click="fill" class="btn btn-danger mb-3">Let me in!</button>
+        </div>
+        <div class="col mx-3 border">
+            <h2>Don't have a country?</h2>
+            <div class="mb-3"></div>
+            <button v-if="claimMessage.message == ''" v-on:click="claim" class="btn btn-warning btn-lg">Claim a country!</button>
+            <div v-if="claimMessage.message">
+                <p>{{claimMessage.message}}</p>
+                <h5 class="text-primary"><strong>Please write the following data down:</strong></h5>
+                <ul class="list-group">
+                    <li class="list-group-item"><strong>Country ID:</strong> <br><pre>{{claimMessage.countryID}}</pre></li>
+                    <li class="list-group-item"><strong>Earth ID:</strong> <br><pre>{{claimMessage.earthID}}</pre></li>
+                </ul>
+                <button class="btn btn-primary my-3" v-on:click="copy">Copy</button>
+            </div>
+            
+        </div>
+    </div>
+    
 </template>
 
 <script>
@@ -24,7 +44,12 @@ export default {
     data() {
         return {
             earthID: "",
-            countryID: ""
+            countryID: "",
+            claimMessage: {
+                message: "",
+                earthID: "",
+                countryID: ""
+            }
         }
     },
     emits: ['login'],
@@ -33,6 +58,21 @@ export default {
             this.earthID = "15B3FAD8-368C-4437-94F6-8B539A774ADC";
             this.countryID = "6A4ECD84-8515-4505-B8EE-4F1E9C5037A8";
             this.login();
+        },
+        claim() {
+            axios.post(`${this.STW_API_ENDPOINT}/game/claim`, {})
+            .then(response => {
+                console.log(response.data);
+
+                this.claimMessage = response.data;
+            })
+            .catch(e => {
+                this.errors.push(e);
+            })
+        },
+        copy() {
+            this.countryID = this.claimMessage.countryID
+            this.earthID = this.claimMessage.earthID
         },
         login() {
             // to see wether we have valid data, we try to get the earth...
@@ -45,7 +85,7 @@ export default {
                 axios.get(`${this.STW_API_ENDPOINT}/countryModels/${this.countryID}`)
                 .then(response2 => {
                     console.log(response2.data);
-                    if (response2.data.id == this.countryID) {
+                    if (response2.data.id == this.countryID && response2.data.playerID) {
                         // and when this is succesfull, we emit the 'login' event.
                         this.$emit('login', {
                             "earthID": this.earthID,

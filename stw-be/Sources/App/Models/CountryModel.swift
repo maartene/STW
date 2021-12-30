@@ -26,13 +26,17 @@ final class CountryModel: Content, Model {
     @Field(key: "earthID")
     var earthID: UUID
     
+    @Field(key: "playerID")
+    var playerID: UUID?
+    
     /// Parameterless initializer required by Fluent.
     init() {}
     
     /// Convenience initiazer to create new countries initialized with the correct data.
-    init(id: UUID? = nil, country: Country, earthID: UUID) {
+    init(id: UUID? = nil, country: Country, earthID: UUID, playerID: UUID? = nil) {
         self.id = id
         self.country = country
         self.earthID = earthID
+        self.playerID = playerID
     }
 }
