@@ -100,6 +100,7 @@ public enum Condition: Codable, Equatable {
         }
     }
     
+    /// Returns a "human readable" description of the condition.
     public var conditionDescription: String {
         switch self {
         case .empty:

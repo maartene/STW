@@ -131,19 +131,68 @@ public struct Earth {
     /// - Returns: the damage due to temperature increase in percentage of GDP
     ///
     /// This function assumes an even impact on GDP for all countries, without taking into account geographic and economic differences. This gross simplification will need to be fixed in the future.
-    public func costOfTemperatureChangePct(deltaT: Double) -> Double {
-        0.3098 * deltaT * deltaT + 0.614 * deltaT
-    }
+//    public func costOfTemperatureChangePct(deltaT: Double) -> Double {
+//        0.3098 * deltaT * deltaT + 0.614 * deltaT
+//    }
 
 //    public func costOfTemperatureChangeDollars(deltaT: Double) -> Double {
 //        costOfTemperatureChangePct(deltaT: deltaT) / 100.0 * Self.BASE_GLOBAL_ECONOMY_2019
 //    }
     
     /// The current cost/damages of temperature change (in percentage of GDP)
-    public var currentCostOfTemperatureChange: Double {
+//    public var currentCostOfTemperatureChange: Double {
+//        let deltaT = currentTemperature - Self.BASE_TEMPERATURE_2015
+//        let cost = costOfTemperatureChangePct(deltaT: deltaT)
+//        return max(0, cost)
+//    }
+    
+    /// (Adverse) effects from increased global warming. These effects become more severe as the global average temperature increases.
+    public var currentEffectsOfTemperatureChange: [Effect] {
         let deltaT = currentTemperature - Self.BASE_TEMPERATURE_2015
-        let cost = costOfTemperatureChangePct(deltaT: deltaT)
-        return max(0, cost)
+        switch deltaT {
+        case 0 ..< 0.2:
+            return [.extraGDP(percentage: -0.1)]
+        case 0.2 ..< 0.4:
+            return [.extraGDP(percentage: -0.5)]
+        case 0.4 ..< 1.0:
+            return [.extraGDP(percentage: -1.0)]
+        case 1.0 ..< 1.5:
+            return [.extraGDP(percentage: -1.5),
+                    .extraGini(points: 0.02)]
+        case 1.5 ..< 2:
+            return [.extraGDP(percentage: -2),
+                    .extraGini(points: 0.02),
+                    .extraBudget(points: -0.01)]
+        case 1.5 ..< 2:
+            return [.extraGDP(percentage: -2.5),
+                    .extraGini(points: 0.05),
+                    .extraBudget(points: -0.02)]
+        case 2 ..< 3:
+            return [.extraGDP(percentage: -5),
+                    .extraGini(points: 0.1),
+                    .extraBudget(points: -0.02)]
+        case 3 ..< 5:
+            return [.extraGDP(percentage: -10),
+                    .extraGini(points: 0.15),
+                    .extraBudget(points: -0.04)]
+        case 5 ..< Double.infinity:
+            return [.extraGDP(percentage: -deltaT * 0.25),
+                    .extraGini(points: deltaT * 0.075),
+                    .extraBudget(points: -deltaT * 0.01)]
+        default:
+            return []
+        }
+    }
+    
+    public var effectDescription: String {
+        let effects = currentEffectsOfTemperatureChange
+        
+        if effects.count > 0 {
+            let effectDescriptions = effects.map { $0.description() }
+            return effectDescriptions.joined(separator: "\n")
+        } else {
+            return "No effect"
+        }
     }
     
     // MARK: Debug functions/variables

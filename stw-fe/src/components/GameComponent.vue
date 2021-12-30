@@ -56,7 +56,8 @@
                     </div>
                 </div>
             </div>
-            <h5>Messages</h5>
+            <h5>Current effects of global warming</h5>
+            <p>{{gameData.earthEffectsDescription}}</p>
             
         </Tab>
         <Tab title="Policies">
@@ -119,7 +120,8 @@ export default {
                 educationDevelopmentIndexRating: "",
                 educationDevelopmentIndex: 0,
                 budgetSurplus: 0,
-                budgetSurplusRating: ""
+                budgetSurplusRating: "",
+                earthEffectsDescription: ""
             },
             commands: [
                 {

@@ -71,9 +71,9 @@ public struct Country: Codable {
     /// - Returns: the GDP for this country in 1000 US$ (taking damages of temperature change into account).
     ///
     /// This function assumes a flat net impact of temperature change for each country. We know this is not correct and will improve this function to take geographical and economic differences into account.
-    public func getCorrectedGDP(_ earth: Earth) -> Double {
-        GDP * (1.0 - earth.currentCostOfTemperatureChange / 100.0)
-    }
+//    public func getCorrectedGDP(_ earth: Earth) -> Double {
+//        GDP * (1.0 - earth.currentCostOfTemperatureChange / 100.0)
+//    }
     
     /// Creates a new country.
     /// - Parameters:
@@ -115,10 +115,15 @@ public struct Country: Codable {
     public mutating func tick(in earth: Earth) {
         countryPoints += 1
         
+        // Apply global warming effects.
+        for effect in earth.currentEffectsOfTemperatureChange {
+            self = effect.applyEffect(to: self, in: earth)
+        }
+        
 //        let sortedActivePolicies = activePolicies.sorted {
 //            $0.priority < $1.priority
 //        }
-        
+        // Apply policy effects
         for policy in activePolicies {
             self = policy.applyEffects(to: self, in: earth)
         }

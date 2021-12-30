@@ -52,6 +52,7 @@ struct GameController: RouteCollection {
         let giniRatingRating: String
         let educationDevelopmentIndexRating: String
         let emissionPerCapitaRating: String
+        let earthEffectsDescription: String
         
         init(countryModel: CountryModel, earthModel: EarthModel) {
             self.countryID = countryModel.id!
@@ -61,7 +62,7 @@ struct GameController: RouteCollection {
             self.currentYear = earthModel.earth.currentYear
             self.currentTemperature = earthModel.earth.currentTemperature
             self.yearlyEmissions = countryModel.country.yearlyEmissions
-            self.netGDP = countryModel.country.getCorrectedGDP(earthModel.earth)
+            self.netGDP = countryModel.country.GDP
             self.population = countryModel.country.population
             self.countryPoints = countryModel.country.countryPoints
             self.countryPointsPerTick = countryModel.country.countryPointsPerTick
@@ -73,6 +74,7 @@ struct GameController: RouteCollection {
             self.giniRatingRating = Rating.equalityRatingFor(countryModel.country).stringValue
             self.educationDevelopmentIndexRating = Rating.ediRatingFor(countryModel.country).stringValue
             self.emissionPerCapitaRating = Rating.emissionPerCapitaRatingFor(countryModel.country).stringValue
+            self.earthEffectsDescription = earthModel.earth.effectDescription
         }
     }
     

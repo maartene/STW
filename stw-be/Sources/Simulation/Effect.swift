@@ -18,6 +18,7 @@ public enum Effect: Codable, Equatable {
     case extraGDP(percentage: Double)
     case extraGini(points: Double)
     case extraEDI(percentage: Double)
+    case extraBudget(points: Double)
     
     /// A 'pretty' description of this effects consequences for a country, when applied.
     func description(level: Int = 1) -> String {
@@ -38,6 +39,8 @@ public enum Effect: Codable, Equatable {
             return "\(points * Double(level)  > 0 ? "Increases" : "Decreases") inequality at a rate of \(points * Double(level)) points per year."
         case .extraEDI(let percentage):
             return "\(percentage * Double(level)  > 0 ? "Increases" : "Decreases") education development index at a rate of \(percentage * Double(level))% per year."
+        case .extraBudget(let points):
+            return "\(points * Double(level)  > 0 ? "Increases" : "Decreases") budget surplus by \(points * Double(level)) points per year."
         }
     }
     
@@ -78,6 +81,8 @@ public enum Effect: Codable, Equatable {
             
         case .extraEDI(let percentage):
             updatedCountry.educationDevelopmentIndex += percentage * 0.01 * updatedCountry.educationDevelopmentIndex * Double(level) / 24.0
+        case .extraBudget(let points):
+            updatedCountry.budgetSurplus += points * Double(level) / 24.0
         }
                 
         return updatedCountry
