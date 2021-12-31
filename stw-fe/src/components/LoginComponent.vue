@@ -1,36 +1,52 @@
 <template>
     <div class="row">
-        <div class="col mx-3 border">
-            <h2>Please login</h2>
-            <div class="mb-3">
-                <label for="countryID" class="form-label">Country ID:</label>
-                <input type="text" v-model="countryID" class="form-control" id="countryID" aria-describedby="countryHelp">
-                <div class="form-text" id="countryHelp">You should have written this down...</div>
+        <div class="col-md p-3 mx-3 border">
+            <h2>Login</h2>
+            <form @submit.prevent="login">
+                <div class="form-group">
+                <label for="email" class="form-label">Email address:</label>
+                <input type="text" v-model="email" class="form-control" id="email" aria-describedby="emailHelp">
+                <div class="form-text" id="emailHelp">The email you used when signing up.</div>
             </div>
-            <div class="mb-3">
-                <label for="earthID" class="form-label">Earth ID:</label>
-                <input type="text" v-model="earthID" class="form-control" id="earthID" aria-describedby="earthHelp">
-                <div class="form-text" id="earthHelp">You should have written this down...</div>
+            <div class="form-group">
+                <label for="password" class="form-label">Password:</label>
+                <input type="password" v-model="password" class="form-control" id="password" aria-describedby="passwordHelp">
+                <div class="form-text" id="passwordHelp">You should have written this down...</div>
             </div>
 
-            <button type="submit" v-on:click="login" class="btn btn-primary mb-3">Submit</button>
+            <button type="submit" class="btn btn-primary mb-3">Submit</button>
 
             <button v-on:click="fill" class="btn btn-danger mb-3">Let me in!</button>
+            </form>
         </div>
-        <div class="col mx-3 border">
-            <h2>Don't have a country?</h2>
-            <div class="mb-3"></div>
-            <button v-if="claimMessage.message == ''" v-on:click="claim" class="btn btn-warning btn-lg">Claim a country!</button>
-            <div v-if="claimMessage.message">
-                <p>{{claimMessage.message}}</p>
-                <h5 class="text-primary"><strong>Please write the following data down:</strong></h5>
-                <ul class="list-group">
-                    <li class="list-group-item"><strong>Country ID:</strong> <br><pre>{{claimMessage.countryID}}</pre></li>
-                    <li class="list-group-item"><strong>Earth ID:</strong> <br><pre>{{claimMessage.earthID}}</pre></li>
-                </ul>
-                <button class="btn btn-primary my-3" v-on:click="copy">Copy</button>
-            </div>
-            
+        <div class="col-md p-3 mx-3 border">
+            <h2>Register</h2>
+            <p>You will be assigned a country automatically after registering.</p>
+            <form @submit.prevent="register">
+                <div class="form-group">
+                    <label for="register-email" class="form-label">Email address:</label>
+                    <input type="text" v-model="registerEmail" class="form-control" id="register-email" aria-describedby="register-emailHelp">
+                    <div class="form-text" id="register-emailHelp">The email you will use to sign in.</div>
+                </div>
+                <div class="form-group">
+                    <label for="register-name" class="form-label">Name:</label>
+                    <input type="text" v-model="registerName" class="form-control" id="register-name" aria-describedby="register-nameHelp">
+                    <div class="form-text" id="register-nameHelp">What do you want to be called in game?</div>
+                </div>                
+                <div class="form-group">
+                    <label for="register-password" class="form-label">Password:</label>
+                    <input type="password" v-model="registerPassword" class="form-control" id="register-password" aria-describedby="register-passwordHelp">
+                    <div class="form-text" id="register-passwordHelp">Needs to be at least 8 characters long.</div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="register-confirmpassword" class="form-label">Confirm password:</label>
+                    <input type="password" v-model="registerconfirmPassword" class="form-control" id="register-confirmpassword" aria-describedby="register-confirmpasswordHelp">
+                    <div class="form-text" id="register-confirmpasswordHelp">Make sure its the same.</div>
+                </div>                
+                <button type="submit" class="btn btn-primary mb-3">Submit</button>
+                <p v-if="registerMessage">{{registerMessage}}</p>
+            </form>            
         </div>
     </div>
     
@@ -43,59 +59,52 @@ export default {
     name: "LoginComponent",
     data() {
         return {
-            earthID: "",
-            countryID: "",
-            claimMessage: {
-                message: "",
-                earthID: "",
-                countryID: ""
-            }
+            email: "",
+            password: "",
+            registerEmail: "",
+            registerName: "",
+            registerPassword: "",
+            registerconfirmPassword: "",
+            registerMessage: "",
         }
     },
     emits: ['login'],
     methods: {
         fill() {
-            this.earthID = "F4612A66-C66D-4988-A1C8-8466FBBA3BCD";
-            this.countryID = "DE5B394F-7253-44A8-AB90-9A6E88F3EE5F";
+            this.email = "maartene@mac.com";
+            this.password = "FooBar123";
             this.login();
         },
-        claim() {
-            axios.post(`${this.STW_API_ENDPOINT}/game/claim`, {})
+        login() {
+            const token = Buffer.from(`${this.email}:${this.password}`, 'utf8').toString('base64')
+            axios.post(`${this.STW_API_ENDPOINT}/players/login/`, {}, {
+                headers: {
+                    'Authorization': `Basic ${token}` 
+                }
+            })
             .then(response => {
-                console.log(response.data);
-
-                this.claimMessage = response.data;
+                console.log(response.data)
+                this.$emit('login', {
+                    "token": response.data.value
+                });
             })
             .catch(e => {
                 this.errors.push(e);
             })
         },
-        copy() {
-            this.countryID = this.claimMessage.countryID
-            this.earthID = this.claimMessage.earthID
-        },
-        login() {
-            // to see wether we have valid data, we try to get the earth...
-            axios.get(`${this.STW_API_ENDPOINT}/earthModels/${this.earthID}/`)
-            .then(response => {
-                // JSON responses are parsed automatically
-                console.log(response.data);
+        register() {
+            const create = {
+                name: this.registerName,
+                email: this.registerEmail,
+                password: this.registerPassword,
+                confirmPassword: this.registerconfirmPassword
+            }
+            //console.log(create);
 
-                // and country...
-                axios.get(`${this.STW_API_ENDPOINT}/countryModels/${this.countryID}`)
-                .then(response2 => {
-                    console.log(response2.data);
-                    if (response2.data.id == this.countryID && response2.data.playerID) {
-                        // and when this is succesfull, we emit the 'login' event.
-                        this.$emit('login', {
-                            "earthID": this.earthID,
-                            "countryID": this.countryID
-                        });
-                    }
-                })
-                .catch(e2 => {
-                    this.errors.push(e2);
-                })
+            axios.post(`${this.STW_API_ENDPOINT}/players/`, create)
+            .then(response => {
+                console.log(response.data)
+                this.registerMessage = response.data
             })
             .catch(e => {
                 this.errors.push(e);

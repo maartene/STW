@@ -38,11 +38,15 @@ export default {
         }
     },
     props: {
-        countryID: String
+        token: String
     },
     methods: {
         buildCharts() {    
-            axios.get(`${this.STW_API_ENDPOINT}/game/${this.countryID}/forecast`)
+            axios.get(`${this.STW_API_ENDPOINT}/game/country/forecast`, {
+                headers: {
+                    "Authorization": `bearer ${this.token}`
+                }
+            })
             .then(response => {
                 if (this.countryChart.data) {
                     this.countryChart.destroy();

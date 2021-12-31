@@ -11,7 +11,7 @@
           <LoginComponent @login="doLogin"></LoginComponent>
         </div>
         <p v-else>
-          <GameComponent v-bind:countryID="countryID"></GameComponent>
+          <GameComponent v-bind:token="token"></GameComponent>
         </p>
       </transition>
   </div>
@@ -29,22 +29,20 @@ export default {
   },
   data() {
     return {
-      earthID: "",
-      countryID: ""
+      token: "",
     }
   },
   emits: ['login'],
   methods: {
-    doLogin(data) {
-      this.earthID = data.earthID;
-      this.countryID = data.countryID;
+    doLogin(token) {
+      this.token = token.token;
     },
     loggedIn() {
-      return this.earthID != "" && this.countryID != ""
+      return this.token != ""
     }
   },
   mounted() {
-    document.title = "Let's save the World"
+    document.title = "Let's save the World (letssavetheworld.club)"
   }
 }
 </script>

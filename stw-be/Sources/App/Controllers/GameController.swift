@@ -13,9 +13,9 @@ import Foundation
 struct GameController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         let game = routes.grouped("game")
-        game.post("claim", use: claimCountry)
+        let protectedGame = game.grouped(UserToken.authenticator())
         
-        game.group(":countryModelID") { gameGroup in
+        protectedGame.group("country") { gameGroup in
             gameGroup.get(use: getFullData)
             gameGroup.post(use: executeCommand)
             gameGroup.group("commands") { commandGroup in
@@ -80,15 +80,29 @@ struct GameController: RouteCollection {
         }
     }
     
-    func getFullData(req: Request) async throws -> FullDataResponse {
-        guard let countryModel = try await CountryModel.find(req.parameters.get("countryModelID"), on: req.db) else {
+    func getCountryAndPlayer(req: Request) async throws -> (player: Player, countryModel: CountryModel) {
+        let player = try req.auth.require(Player.self)
+        
+        guard let countryModel = try await CountryModel.find(player.countryID, on: req.db) else {
+            req.logger.warning("Could not find countryModel with id: \(player.countryID?.uuidString ?? "nil")")
             throw Abort(.notFound)
         }
+        
+        guard countryModel.playerID == player.id && player.countryID == countryModel.id && player.countryID != nil else {
+            req.logger.warning("playerID in countryModel (\(countryModel.playerID?.uuidString ?? "nil") and player \(player.id?.uuidString ?? "nil") -or- countryID in player (\(player.countryID?.uuidString ?? "nil") and countryModel (\(countryModel.id?.uuidString ?? "nil") -or- countryID in player is nil (\(player.countryID?.uuidString ?? "nil") ")
+            throw Abort(.badRequest)
+        }
+        
+        return (player, countryModel)
+    }
+    
+    func getFullData(req: Request) async throws -> FullDataResponse {
+        let countryModel = try await getCountryAndPlayer(req: req).countryModel
         
         guard let earthModel = try await EarthModel.find(countryModel.earthID, on: req.db) else {
             throw Abort(.notFound)
         }
-        
+
         let response = FullDataResponse(countryModel: countryModel, earthModel: earthModel)
         
         return response
@@ -106,9 +120,9 @@ struct GameController: RouteCollection {
     }
     
     func getAvailableCommands(req: Request) async throws -> [CommandInfo] {
-        guard let countryModel = try await CountryModel.find(req.parameters.get("countryModelID"), on: req.db) else {
-            throw Abort(.notFound)
-        }
+        let playerAndCountryModel = try await getCountryAndPlayer(req: req)
+        
+        let countryModel = playerAndCountryModel.countryModel
         
         let debugMode = Environment.get("DEBUG_MODE")?.uppercased() == "TRUE"
         var filteredCommands = countryModel.country.availableCommands
@@ -123,9 +137,7 @@ struct GameController: RouteCollection {
     }
     
     func executeCommand(req: Request) async throws -> String {
-        guard let countryModel = try await CountryModel.find(req.parameters.get("countryModelID"), on: req.db) else {
-            throw Abort(.notFound)
-        }
+        let countryModel = try await getCountryAndPlayer(req: req).countryModel
         
         guard let earthModel = try await EarthModel.find(countryModel.earthID, on: req.db) else {
             throw Abort(.notFound)
@@ -167,9 +179,7 @@ struct GameController: RouteCollection {
     }
     
     func getPolicies(req: Request) async throws -> CountryPolicyInfo {
-        guard let countryModel = try await CountryModel.find(req.parameters.get("countryModelID"), on: req.db) else {
-            throw Abort(.notFound)
-        }
+        let countryModel = try await getCountryAndPlayer(req: req).countryModel
         
         let availablePolicies = countryModel.country.enactablePolicies.map { policy -> PolicyInfo in
             //print(policy)
@@ -182,9 +192,7 @@ struct GameController: RouteCollection {
     }
     
     func enactPolicy(req: Request) async throws -> String {
-        guard let countryModel = try await CountryModel.find(req.parameters.get("countryModelID"), on: req.db) else {
-            throw Abort(.notFound)
-        }
+        let countryModel = try await getCountryAndPlayer(req: req).countryModel
         
         let policy = try req.content.decode(Policy.self)
         
@@ -198,9 +206,7 @@ struct GameController: RouteCollection {
     }
     
     func revokePolicy(req: Request) async throws -> String {
-        guard let countryModel = try await CountryModel.find(req.parameters.get("countryModelID"), on: req.db) else {
-            throw Abort(.notFound)
-        }
+        let countryModel = try await getCountryAndPlayer(req: req).countryModel
         
         let policy = try req.content.decode(Policy.self)
         
@@ -214,10 +220,7 @@ struct GameController: RouteCollection {
     }
     
     func levelUpPolicy(req: Request) async throws -> String {
-        guard let countryModel = try await CountryModel.find(req.parameters.get("countryModelID"), on: req.db) else {
-            req.logger.warning("Could not find countryModel with id: \(req.parameters.get("countryModelID") ?? "unknown")")
-            throw Abort(.notFound)
-        }
+        let countryModel = try await getCountryAndPlayer(req: req).countryModel
         
         let policy = try req.content.decode(Policy.self)
         
@@ -243,10 +246,7 @@ struct GameController: RouteCollection {
     }
     
     func getForecast(req: Request) async throws -> [Forecast] {
-        guard let countryModel = try await CountryModel.find(req.parameters.get("countryModelID"), on: req.db) else {
-            req.logger.warning("Could not find countryModel with id: \(req.parameters.get("countryModelID") ?? "unknown")")
-            throw Abort(.notFound)
-        }
+        let countryModel = try await getCountryAndPlayer(req: req).countryModel
 
         guard let earthModel = try await EarthModel.find(countryModel.earthID, on: req.db) else {
             req.logger.warning("Could not find earthModel with id: \(countryModel.earthID)")
@@ -282,28 +282,5 @@ struct GameController: RouteCollection {
         }
 
         return result
-    }
-    
-    // MARK: Claim a country
-    struct ClaimResult: Content {
-        let message: String
-        let countryID: UUID?
-        let earthID: UUID?
-        let playerID: UUID?
-    }
-    
-    func claimCountry(req: Request) async throws -> ClaimResult {
-        let availableCountryModels = try await CountryModel.query(on: req.db).filter(\.$playerID, .equal, .none).all()
-        
-        guard let availableCountryModel = availableCountryModels.randomElement() else {
-            return ClaimResult(message: "No more countries are available. Please try again at a later time.", countryID: nil, earthID: nil, playerID: nil)
-        }
-        
-        availableCountryModel.playerID = UUID()
-        
-        try await availableCountryModel.save(on: req.db)
-        
-        return ClaimResult(message: "You will play as \(availableCountryModel.country.name)", countryID: availableCountryModel.id, earthID: availableCountryModel.earthID, playerID: availableCountryModel.playerID)
-        
     }
 }

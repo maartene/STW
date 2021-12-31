@@ -67,7 +67,7 @@
             <InactivePolicies v-bind:inactivePolicies="policies.availablePolicies" @enactPolicy="enactPolicy"></InactivePolicies>    
         </Tab>
         <Tab title="Commands"><Commands v-bind:commands="commands" @executeCommand="executeCommand"></Commands></Tab>
-        <Tab title="Forecast"><Forecast v-bind:countryID="countryID"></Forecast></Tab>
+        <Tab title="Forecast"><Forecast v-bind:token="token"></Forecast></Tab>
         </TabWrapper>
     </div>
 </template>
@@ -158,11 +158,15 @@ export default {
         }
     },
     props: {
-        countryID: String
+        token: String
     },
     methods: {
         refresh() {
-            axios.get(`${this.STW_API_ENDPOINT}/game/${this.countryID}/`)
+            axios.get(`${this.STW_API_ENDPOINT}/game/country/`, {
+                headers: {
+                    "Authorization": `bearer ${this.token}`
+                }
+            })
             .then(response => {
                 // JSON responses are automatically parsed.
                 console.log(response.data);
@@ -172,7 +176,11 @@ export default {
                 this.errors.push(e);
             })
 
-            axios.get(`${this.STW_API_ENDPOINT}/game/${this.countryID}/policies/`)
+            axios.get(`${this.STW_API_ENDPOINT}/game/country/policies/`, {
+                headers: {
+                    "Authorization": `bearer ${this.token}`
+                }
+            })
             .then(response => {
                 // JSON responses are automatically parsed.
                 console.log(response.data);
@@ -182,7 +190,11 @@ export default {
                 this.errors.push(e);
             })
 
-            axios.get(`${this.STW_API_ENDPOINT}/game/${this.countryID}/commands/`)
+            axios.get(`${this.STW_API_ENDPOINT}/game/country/commands/`, {
+                headers: {
+                    "Authorization": `bearer ${this.token}`
+                }
+            })
             .then(response => {
                 // JSON responses are automatically parsed.
                 console.log(response.data);
@@ -195,7 +207,11 @@ export default {
 
         executeCommand(command) {
             console.log(`Attempting to send command: ${command.command}`);
-            axios.post(`${this.STW_API_ENDPOINT}/game/${this.countryID}/`, command.command)
+            axios.post(`${this.STW_API_ENDPOINT}/game/country/`, command.command, {
+                headers: {
+                    "Authorization": `bearer ${this.token}`
+                }
+            })
             .then(response => {
                 // JSON responses are automatically parsed.
                 console.log(response.data);
@@ -210,7 +226,11 @@ export default {
 
         enactPolicy(policy) {
             console.log(`Attempting to send command: ${policy.policy}`);
-            axios.post(`${this.STW_API_ENDPOINT}/game/${this.countryID}/policies`, policy.policy)
+            axios.post(`${this.STW_API_ENDPOINT}/game/country/policies`, policy.policy, {
+                headers: {
+                    "Authorization": `bearer ${this.token}`
+                }
+            })
             .then(response => {
                 // JSON responses are automatically parsed.
                 console.log(response.data);
@@ -225,7 +245,11 @@ export default {
 
         revokePolicy(policy) {
             console.log(`Attempting to send command: ${policy.policy}`);
-            axios.post(`${this.STW_API_ENDPOINT}/game/${this.countryID}/policies/revoke`, policy.policy)
+            axios.post(`${this.STW_API_ENDPOINT}/game/country/policies/revoke`, policy.policy, {
+                headers: {
+                    "Authorization": `bearer ${this.token}`
+                }
+            })
             .then(response => {
                 // JSON responses are automatically parsed.
                 console.log(response.data);
@@ -240,7 +264,11 @@ export default {
 
         levelUpPolicy(policy) {
             console.log(`Attempt to level up policy: ${policy.policy.name}`);
-            axios.post(`${this.STW_API_ENDPOINT}/game/${this.countryID}/policies/levelup`, policy.policy)
+            axios.post(`${this.STW_API_ENDPOINT}/game/country/policies/levelup`, policy.policy, {
+                headers: {
+                    "Authorization": `bearer ${this.token}`
+                }
+            })
             .then(response => {
                 // JSON responses are automatically parsed.
                 console.log(response.data);
