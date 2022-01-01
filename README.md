@@ -62,6 +62,7 @@ The following endpoints are protected by bearer token authentication:
 
 ### Docker
 * There is a basic `docker-compose.yml` file in the STW root directory.
+* The official Swift Docker images only support Intel/AMD64 architectures. Running the game on a Raspberry PI using Docker is out of the question.
 * Most likely you will need to set environment variables. I recommend using a `.env` file for this purpose. (`.env` is included in `.gitignore`, so you shouldn't worry about secrets leaking this way.)
 
 Start by building the Docker images:
