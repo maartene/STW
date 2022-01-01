@@ -52,7 +52,7 @@ export default {
                     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
                         return new bootstrap.Tooltip(tooltipTriggerEl)
                     })
-                    console.log(tooltipList)
+                    console.log(tooltipList.length)
         },
         policyTooltip(policy) {
             return `${policy.policy.description} <br> This policy is available because: <br> ${policy.conditionDescription}`

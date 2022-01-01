@@ -47,6 +47,8 @@ struct UpdateEarthTask: AsyncScheduledJob {
                 
                 earthModel.lastUpdate = updateDate
                 try await earthModel.save(on: context.application.db)
+                
+                try await EarthLog(earthID: earthModel.id!, message: "Welcome to \(earthModel.earth.currentYear)!")
             }
         }
     }

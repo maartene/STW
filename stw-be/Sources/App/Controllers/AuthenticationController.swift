@@ -78,6 +78,8 @@ struct AuthenticationController: RouteCollection {
         try await countryModel.save(on: req.db)
         try await player.save(on: req.db)
         
+        try await EarthLog.logMessage("\(countryModel.country.name) was claimed.", for: countryModel.earthID, on: req.db)
+        
         return "Player succesfully created. You can now log in."
     }
     

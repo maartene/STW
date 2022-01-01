@@ -41,13 +41,19 @@
     </div>
     <h5>Current effects of global warming</h5>
     <p>{{gameData.earthEffectsDescription}}</p>
+    <h5>Messages</h5>
+    <ul class="list-group">
+        <li class="list-group-item" v-for="message in gameData.messages" :key="message.id">{{message.message}}</li>
+    </ul>
 </template>
 
 <script>
 export default {
     name: "Overview",
     props: {
-        gameData: {}
+        gameData: {
+            messages: []
+        }
     }
 }
 </script>

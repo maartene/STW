@@ -141,9 +141,9 @@ public struct Country: Codable {
     ///   - command: the command to execute.
     ///   - earth: the earth this command is executed in.
     /// - Returns: an updated version of the country, with the effects of the command applied.
-    public func executeCommand(_ command: CountryCommand, in earth: Earth) -> (updatedCountry: Country, resultMessage: String) {
-        let result = command.applyEffect(to: self, in: earth)
-        return result
+    public func executeCommand(_ command: CountryCommand, in earth: Earth) -> (result: Bool, updatedCountry: Country, resultMessage: String) {
+        let commandResult = command.applyEffect(to: self, in: earth)
+        return (true, commandResult.updatedCountry, commandResult.resultMessage)
     }
     
     // MARK: Policy
@@ -164,9 +164,9 @@ public struct Country: Codable {
     /// Enact a `Policy`.
     /// - Parameter policy: the `Policy` to enact.
     /// - Returns: an updated country and a message indicating the result of the action.
-    public func enactPolicy(_ policy: Policy) -> (updatedCountry: Country, resultMessage: String) {
+    public func enactPolicy(_ policy: Policy) -> (result: Bool, updatedCountry: Country, resultMessage: String) {
         guard policy.baseCost <= countryPoints else {
-           return (self, "Not enough country points to enact policy \(policy).")
+           return (false, self, "Not enough country points to enact policy \(policy).")
         }
         
         var updatedCountry = self
@@ -174,26 +174,26 @@ public struct Country: Codable {
         let policiesInSameCategory = activePolicies.filter({$0.category == policy.category})
         
         if let limit = policy.category.policyLimit, policiesInSameCategory.count >= limit {
-            return (self, "You already have the maximum (\(limit)) number of policies in the \(policy.category) category active.")
+            return (false, self, "You already have the maximum (\(limit)) number of policies in the \(policy.category) category active.")
         }
         
         updatedCountry.countryPoints -= policy.baseCost
         updatedCountry.activePolicies.append(policy)
 
-        return (updatedCountry, "Successfully enacted policy '\(policy.name)'")
+        return (true, updatedCountry, "Successfully enacted policy '\(policy.name)'")
     }
     
     /// Revoke a `Policy`
     /// - Parameter policy: the `Policy` to revoke
     /// - Returns: an updated country and a message indicating the result of the action.
-    public func revokePolicy(_ policy: Policy) -> (updatedCountry: Country, resultMessage: String) {
+    public func revokePolicy(_ policy: Policy) -> (result: Bool, updatedCountry: Country, resultMessage: String) {
         guard let index = activePolicies.firstIndex(of: policy) else {
-            return (self, "Policy '\(policy.name)' is not enacted.")
+            return (false, self, "Policy '\(policy.name)' is not enacted.")
         }
         
         var updatedCountry = self
         updatedCountry.activePolicies.remove(at: index)
-        return (updatedCountry, "Successfully revoked policy '\(policy.name)'")
+        return (true, updatedCountry, "Successfully revoked policy '\(policy.name)'")
     }
     
     /// Bring a `Policy` to a higher level.
@@ -201,21 +201,21 @@ public struct Country: Codable {
     /// - Returns: an updated country and a message indicating the result of the action.
     ///
     /// Each extra level increases the impact the `Policy` has.
-    public func levelUpPolicy(_ policy: Policy) -> (updatedCountry: Country, resultMessage: String) {
+    public func levelUpPolicy(_ policy: Policy) -> (result: Bool, updatedCountry: Country, resultMessage: String) {
         guard let index = activePolicies.firstIndex(of: policy) else {
-            return (self, "Policy '\(policy.name)' is not enacted.")
+            return (false, self, "Policy '\(policy.name)' is not enacted.")
         }
         
         var updatedCountry = self
         
         guard policy.upgradeCost <= updatedCountry.countryPoints else {
-            return (self, "Not enough point to upgrade '\(policy.name)'.")
+            return (false, self, "Not enough point to upgrade '\(policy.name)'.")
         }
         
         updatedCountry.countryPoints -= policy.upgradeCost
         updatedCountry.activePolicies[index].level += 1
         
-        return (updatedCountry, "Successfully upgraded policy '\(policy.name)'")
+        return (true, updatedCountry, "Successfully upgraded policy '\(policy.name)'")
     }
     
     // MARK: Forecasts

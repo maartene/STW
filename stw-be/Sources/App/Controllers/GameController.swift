@@ -155,6 +155,10 @@ struct GameController: RouteCollection {
         countryModel.country = result.updatedCountry
         try await countryModel.save(on: req.db)
         
+        if result.result {
+            try await EarthLog.logMessage("\(countryModel.country.name) executed command '\(command.name)'.", for: countryModel.earthID, on: req.db)
+        }
+        
         return result.resultMessage
     }
     
@@ -201,6 +205,10 @@ struct GameController: RouteCollection {
         countryModel.country = result.updatedCountry
         try await countryModel.save(on: req.db)
         
+        if result.result {
+            try await EarthLog.logMessage("\(countryModel.country.name) enected policy '\(policy.name)'.", for: countryModel.earthID, on: req.db)
+        }
+        
         return result.resultMessage
         
     }
@@ -214,6 +222,10 @@ struct GameController: RouteCollection {
         
         countryModel.country = result.updatedCountry
         try await countryModel.save(on: req.db)
+        
+        if result.result {
+            try await EarthLog.logMessage("\(countryModel.country.name) revoked policy '\(policy.name)'.", for: countryModel.earthID, on: req.db)
+        }
         
         return result.resultMessage
         
@@ -229,6 +241,10 @@ struct GameController: RouteCollection {
         countryModel.country = result.updatedCountry
         try await countryModel.save(on: req.db)
         
+        if result.result {
+            try await EarthLog.logMessage("\(countryModel.country.name) leveled up policy '\(policy.name)'.", for: countryModel.earthID, on: req.db)
+        }
+            
         return result.resultMessage
         
     }

@@ -16,7 +16,7 @@
         </div>
         <TabWrapper>
         <Tab title="Overview">
-            <Overview v-bind:gameData="gameData"/>
+            <Overview v-bind:gameData="gameData" />
         </Tab>
         <Tab title="Policies">
             <p class="my-3"></p>
@@ -65,6 +65,7 @@ export default {
         return {
             gameData: {
                 netGDP: 0,
+                earthID: "",
                 countryCode: "nl",
                 yearlyEmissions: 0,
                 currentYear: 0,
@@ -81,7 +82,13 @@ export default {
                 educationDevelopmentIndex: 0,
                 budgetSurplus: 0,
                 budgetSurplusRating: "",
-                earthEffectsDescription: ""
+                earthEffectsDescription: "",
+                messages: [
+                    {
+                        id: "",
+                        message: ""
+                    }
+                ]
             },
             commands: [
                 {
@@ -131,6 +138,15 @@ export default {
                 // JSON responses are automatically parsed.
                 console.log(response.data);
                 this.gameData = response.data;
+
+                axios.get(`${this.STW_API_ENDPOINT}/logs/${this.gameData.earthID}/`)
+                .then(response => {
+                    // JSON responses are automatically parsed.
+                    this.gameData.messages = response.data;
+                })
+                .catch(e => {
+                    this.errors.push(e);
+                })
             })
             .catch(e => {
                 this.errors.push(e);
@@ -143,7 +159,7 @@ export default {
             })
             .then(response => {
                 // JSON responses are automatically parsed.
-                console.log(response.data);
+                //console.log(response.data);
                 this.policies = response.data;
             })
             .catch(e => {
@@ -157,12 +173,13 @@ export default {
             })
             .then(response => {
                 // JSON responses are automatically parsed.
-                console.log(response.data);
+                //console.log(response.data);
                 this.commands = response.data;
             })
             .catch(e => {
                 this.errors.push(e);
             })
+
         },
 
         executeCommand(command) {
