@@ -28,7 +28,7 @@ public enum Effect: Codable, Equatable {
 //        case .changeGDPDirect(let percentage):
 //            return "Directly \(percentage * Double(level)  > 0 ? "increases" : "decreases") GDP by \(percentage * Double(level))%"
         case .changeEmissionsTowardsTarget(let percentage, let target):
-            return "Lowers emissions towards \(target)% less than 2015 value by \(percentage * Double(level))% per year."
+            return "Lowers emissions towards \(target * Double(level))% less than 2015 value by \(percentage * Double(level))% per year."
         case .freePoints(let points):
             return "Extra Country Points: \(points * level)"
         case .extraEmissions(let percentage):
@@ -61,7 +61,7 @@ public enum Effect: Codable, Equatable {
 //        case .changeGDPDirect(let percentage):
 //            updatedCountry.GDP = updatedCountry.baseGDP * (1.0 + 0.01 * percentage * Double(level))
         case .changeEmissionsTowardsTarget(let percentageReductionPerYear, let target):
-            let targetEmissions = updatedCountry.baseYearlyEmissions * (1.0 - 0.01 * target)
+            let targetEmissions = updatedCountry.baseYearlyEmissions * (1.0 - 0.01 * target * Double(level))
             if updatedCountry.yearlyEmissions > targetEmissions {
                 /// `percentageReductionPerYear` is a yearly valuue and this update is erformed 24 times per year (once every hour). So we divide by 24. Note this is a small advantage to the player, as this includes "compound interest". (24 log pct is exact)
                 let deltaEmissions = updatedCountry.baseYearlyEmissions * 0.01 * percentageReductionPerYear * Double(level) / 24.0

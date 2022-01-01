@@ -29,6 +29,9 @@ public enum Condition: Codable, Equatable {
     /// `True` if the `Country`s wealth rating (GDP per capita) is greater than or equal to `ranking`. False otherwise.
     case greaterThanOrEqualWealth(ranking: Rating)
     
+    /// `True` if the `Country`s Education Development Index rating is less than or equal to `ranking`. False otherwise.
+    case lessThanOrEqualEDI(ranking: Rating)
+    
     /// `True` if the `Country`s Education Development Index rating is greater than or equal to `ranking`. False otherwise.
     case greaterThanOrEqualEDI(ranking: Rating)
     
@@ -79,7 +82,10 @@ public enum Condition: Codable, Equatable {
             
         case .greaterThanOrEqualWealth(let ranking):
             return Rating.wealthRatingFor(country) >= ranking
-            
+        
+        case .lessThanOrEqualEDI(let ranking):
+            return Rating.ediRatingFor(country) <= ranking
+        
         case .greaterThanOrEqualEDI(let ranking):
             return Rating.ediRatingFor(country) >= ranking
             
@@ -123,6 +129,8 @@ public enum Condition: Codable, Equatable {
             return "Your wealth per capita ranking is at most: \(ranking.stringValue)"
         case .greaterThanOrEqualWealth(let ranking):
             return "Your wealth per capita ranking is at least: \(ranking.stringValue)"
+        case .lessThanOrEqualEDI(let ranking):
+            return "Your education development index ranking is at most: \(ranking.stringValue)"
         case .greaterThanOrEqualEDI(let ranking):
             return "Your education development index ranking is at least: \(ranking.stringValue)"
         case .greaterThanOrEqualEmissionsPerCapita(let ranking):

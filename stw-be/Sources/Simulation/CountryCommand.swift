@@ -81,7 +81,7 @@ public struct CountryCommand: Codable, Equatable {
     ///   - customApplyMessage: if you want to use a custom apply message, set this value to a string.
     ///   - cost: the cost of this command in Country codes. Set to '0' for a free command
     ///   - flags: any flags you want to set.
-    private init(name: String, description: String, effects: [Effect], cost: Int, customApplyMessage: String? = nil, flags: [CountryCommandFlag] = [], prerequisites: [String] = []) {
+    init(name: String, description: String, effects: [Effect], cost: Int, customApplyMessage: String? = nil, flags: [CountryCommandFlag] = [], prerequisites: [String] = []) {
         self.name = name
         self.description = description
         self.effects = effects

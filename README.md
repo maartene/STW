@@ -32,9 +32,6 @@ This opens XCode. Before running, please consider:
 
 Now you can run the server using Command-R.
 
-#### Docker
-Coming soon.
-
 ### Running the front-end
 To run the front-end locally, you need `node.js` and `npm` installed.
 ```
@@ -50,14 +47,32 @@ To run the front-end locally, you need `node.js` and `npm` installed.
 * `GET /earthModels/[earthModel UUID]` : retrieves a specific `EarthModel` by it's ID (UUID)
 * `GET /countryModels/` : lists all CountryModels. For debugging/testing purposes only
 * `GET /countryModels/[countryModel UUID]` : retrieves a specific `CountryModel` by it's ID (UUID)
-* `GET /game/[countryModel UUID]` : retrieves all relevant data to display in the game.
-* `GET /game/[countryModel UUID]/commands` : retrieves all commands the country can execute (at this time).
-* `POST /game/[countryModel UUID]/` : sends a command to execute. Returns a message (string) indicating what happened.
-* `GET /game/[countryModel UUID]/policies` : retrieves all policies the country can envoke (at this time) and has active.
-* `POST /game/[countryModel UUID]/policies` : sends a policy to enact (in the payload of the request as JSON). Returns a message (string) indicating what happened.
-* `POST /game/[countryModel UUID]/policies/revoke` : sends a policy to revoke (in the payload of the request as JSON). Returns a message (string) indicating what happened.
-* `POST /game/[countryModel UUID]/policies/levelup` : sends a policy to levelup (in the payload of the request as JSON). Returns a message (string) indicating what happened.
-* `GET game/[countryModel UUID]/forecast/` : retrieves forecasted versions of the current earth and country in JSON format. 
+* `POST /players/` : creates a new player and assigns a random country.
+* `POST /players/login` : tries to log in using basic authentication and retrieves a bearer token.
+
+The following endpoints are protected by bearer token authentication:
+* `GET /game/country/` : retrieves all relevant data to display in the game.
+* `GET /game/country/commands` : retrieves all commands the country can execute (at this time).
+* `POST /game/country/` : sends a command to execute. Returns a message (string) indicating what happened.
+* `GET /game/country/policies` : retrieves all policies the country can envoke (at this time) and has active.
+* `POST /game/country/policies` : sends a policy to enact (in the payload of the request as JSON). Returns a message (string) indicating what happened.
+* `POST /game/country/policies/revoke` : sends a policy to revoke (in the payload of the request as JSON). Returns a message (string) indicating what happened.
+* `POST /game/country/policies/levelup` : sends a policy to levelup (in the payload of the request as JSON). Returns a message (string) indicating what happened.
+* `GET game/country/forecast/` : retrieves forecasted versions of the current earth and country in JSON format. 
+
+### Docker
+* There is a basic `docker-compose.yml` file in the STW root directory.
+* Most likely you will need to set environment variables. I recommend using a `.env` file for this purpose. (`.env` is included in `.gitignore`, so you shouldn't worry about secrets leaking this way.)
+
+Start by building the Docker images:
+
+`# docker compose build` (this will take a while)
+
+And then run the images in containers:
+
+`# docker compose up`
+
+If all went well, you can now access your game from the front-end exposed port: `8080`
 
 ## Playing the game
 Coming soon.

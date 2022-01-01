@@ -133,34 +133,7 @@ public struct Country: Codable {
     
     /// An array of all commands available to this country.
     public var availableCommands: [CountryCommand] {
-        Self.defaultCommands()
-        .filter { command in 
-            if command.prerequisitesNames.count == 0 {
-                return true
-            }
-
-            for prereq in command.prerequisitesNames {
-                if activePolicies.contains(where: {$0.name == prereq}) {
-                    return true
-                }
-            }
-            return false
-        }
-    }
-    
-    // FIXME: refactor this to work similar to policies
-    /// Gets a default list of commands.
-    /// - Returns: The default list of commands every country can execute.
-    private static func defaultCommands() -> [CountryCommand] {
-        do {
-            var result = [CountryCommand]()
-            result.append(try CountryCommand.getCommand("Example command"))
-            result.append(try CountryCommand.getCommand("Free points"))
-            result.append(try CountryCommand.getCommand("Climate conference"))
-            return result
-        } catch {
-            fatalError("Unable to create defeault list of commands: \(error).")
-        }
+        AllCommands.getCountryCommandsFor(self)
     }
     
     /// Execute a country command.
