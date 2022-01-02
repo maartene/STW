@@ -32,6 +32,7 @@ public func configure(_ app: Application) throws {
     app.queues.use(.mongodb(mongoDatabase))
 
     app.queues.schedule(UpdateEarthTask()).daily().at(12, 00)
+    app.queues.schedule(CleanupTask()).daily().at(00, 01)
     app.queues.schedule(UpdateCountryTask()).hourly().at(00)
     
     try app.queues.startInProcessJobs(on: .default)

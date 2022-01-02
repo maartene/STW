@@ -21,11 +21,11 @@ final class EarthModel: Content, Model {
     var earth: Earth
     
     /// Becase scheduled tasks might run multiple times, we want to check the last time it was updated to prevent multiple updates.
-    @Field(key: "last_update")
-    var lastUpdate: Date
-    
+//    @Field(key: "last_update")
+//    var lastUpdate: Date
+//
     init() {
         self.earth = Earth()
-        self.lastUpdate = Date()
+    //    self.lastUpdate = Date()
     }
 }

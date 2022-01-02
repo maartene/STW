@@ -22,7 +22,7 @@ struct UpdateCountryTask: AsyncScheduledJob {
     func run(context: QueueContext) async throws {
         // Do some work here, perhaps queue up another job.
         let updateDate = Date()
-        context.logger.info("Running scheduled task 'UpdateCountryTask' as \(updateDate)")
+        context.logger.info("Running scheduled task 'UpdateCountryTask' at \(updateDate)")
         
         // get all the Earths
         let earths = try await EarthModel.query(on: context.application.db).all()

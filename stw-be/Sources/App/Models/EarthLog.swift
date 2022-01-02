@@ -42,7 +42,7 @@ final class EarthLog: Content, Model {
         self.entries = []
         self.startDate = Date()
         self.endDate = Date()
-        self.entrtyCount = Self.MAX_ENTRIES_PER_DOCUMENT
+        self.entrtyCount = 0
     }
     
     /// Log a message for an earth.
@@ -112,7 +112,9 @@ final class EarthLog: Content, Model {
         /// convert the `entries` arrays from both `EarthLog`s into one bigger array.
         let logEntries = latestEarthLogEntries.flatMap { $0.entries }
         
-        return logEntries
+        let count = min(logEntries.count, maxEntries)
+        let lastEntries = Array(logEntries.reversed()[0 ..< count])
+        return lastEntries
         
     }
 }

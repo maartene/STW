@@ -142,7 +142,7 @@ export default {
                 axios.get(`${this.STW_API_ENDPOINT}/logs/${this.gameData.earthID}/`)
                 .then(response => {
                     // JSON responses are automatically parsed.
-                    console.log(response.data)
+                    //console.log(response.data)
                     this.gameData.messages = response.data;
                 })
                 .catch(e => {

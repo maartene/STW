@@ -29,10 +29,10 @@ struct UpdateEarthTask: AsyncScheduledJob {
         
         for earthModel in earths {
             // because scheduled tasks sometimes fire twice, we check whether some time has passed since the last "fire"
-            let elapsedTime = updateDate.timeIntervalSince(earthModel.lastUpdate)
-            context.logger.debug("Elapsed time since last update: \(elapsedTime)")
-            
-            if elapsedTime > MIN_UPDATE_ELAPSED_TIME {
+//            let elapsedTime = updateDate.timeIntervalSince(earthModel.lastUpdate)
+//            context.logger.debug("Elapsed time since last update: \(elapsedTime)")
+//
+//            if elapsedTime > MIN_UPDATE_ELAPSED_TIME {
                 let countryModels = try await CountryModel.query(on: context.application.db)
                     .filter(\.$earthID, .equal, earthModel.id!).all()
                 
@@ -45,11 +45,11 @@ struct UpdateEarthTask: AsyncScheduledJob {
                 earthModel.earth.tick(yearlyEmission: totalEmissions)
                 context.logger.debug("Earth \(earthModel.id?.uuidString ?? "unknown") vitals before: \(earthModel.earth.debugVitals)")
                 
-                earthModel.lastUpdate = updateDate
+//                earthModel.lastUpdate = updateDate
                 try await earthModel.save(on: context.application.db)
                 
                 try await EarthLog.logMessage("Welcome to \(earthModel.earth.currentYear)!", for: earthModel.id!, on: context.application.db)
-            }
+//            }
         }
     }
 }
