@@ -43,7 +43,7 @@
     <p>{{gameData.earthEffectsDescription}}</p>
     <h5>Messages</h5>
     <ul class="list-group">
-        <li class="list-group-item" v-for="message in gameData.messages" :key="message.id">{{message.message}}</li>
+        <li class="list-group-item" v-for="message in gameData.messages" :key="message">{{message}}</li>
     </ul>
 </template>
 

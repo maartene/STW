@@ -17,7 +17,10 @@ struct EarthLogController: RouteCollection {
         }
     }
     
-    func getEarthLogs(req: Request) async throws -> [EarthLog] {
+    /// Returns the last 20 EarthLog messages for a specific Earth.
+    /// - Parameter req: the request that holds the `:earthModelID` parameter.
+    /// - Returns: The last 20 EarthLog messages
+    func getEarthLogs(req: Request) async throws -> [String] {
         guard let earthModelIDString = req.parameters.get("earthModelID") else {
             throw Abort(.badRequest)
         }
@@ -26,12 +29,7 @@ struct EarthLogController: RouteCollection {
             throw Abort(.notFound)
         }
         
-        let messages = try await EarthLog.query(on: req.db).filter(\.$earthID, .equal, earthModelID).all().reversed()
-        
-        let numberToDrop = max(0, messages.count - 20)
-        //print(numberToDrop)
-        
-        return Array(messages.dropLast(numberToDrop))
+        return try await EarthLog.getLastLogMessages(earthID: earthModelID, on: req.db, maxEntries: 20)
     }
 }
 
