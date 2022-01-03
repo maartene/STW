@@ -37,13 +37,11 @@ public struct CountryCommand: Codable, Equatable {
     /// The cost to execute this command, in Country points.
     public let cost: Int
     
-    /// Various flags associated with this command.
-    public let flags: [CountryCommandFlag]
-    
-    public let prerequisitesNames: [String]
+    /// A condition that determines wether a country can execute this command.
+    public let condition: Condition
 
     private enum CodingKeys: CodingKey {
-        case name, description, effects, customApplyMessage, cost, flags, prerequisitesNames
+        case name, description, effects, customApplyMessage, cost, condition
     }
     
     /// Codable based encode function.
@@ -55,8 +53,7 @@ public struct CountryCommand: Codable, Equatable {
         try container.encode(effects, forKey: .effects)
         try container.encode(customApplyMessage, forKey: .customApplyMessage)
         try container.encode(cost, forKey: .cost)
-        try container.encode(flags, forKey: .flags)
-        try container.encode(prerequisitesNames, forKey: .prerequisitesNames)
+        try container.encode(condition, forKey: .condition)
     }
     
     
@@ -69,8 +66,7 @@ public struct CountryCommand: Codable, Equatable {
         effects = try values.decode([Effect].self, forKey: .effects)
         customApplyMessage = (try? values.decode(String?.self, forKey: .customApplyMessage)) ?? nil
         cost = (try? values.decode(Int.self, forKey: .cost)) ?? 0
-        flags = (try? values.decode([CountryCommandFlag].self, forKey: .flags)) ?? []
-        prerequisitesNames = (try? values.decode([String].self, forKey: .prerequisitesNames)) ?? []
+        condition = (try? values.decode(Condition.self, forKey: .condition)) ?? .empty
     }
     
     /// Memberwise initiazer
@@ -80,42 +76,14 @@ public struct CountryCommand: Codable, Equatable {
     ///   - effects: the ways the command impacts a country, defined in `Effect`s
     ///   - customApplyMessage: if you want to use a custom apply message, set this value to a string.
     ///   - cost: the cost of this command in Country codes. Set to '0' for a free command
-    ///   - flags: any flags you want to set.
-    init(name: String, description: String, effects: [Effect], cost: Int, customApplyMessage: String? = nil, flags: [CountryCommandFlag] = [], prerequisites: [String] = []) {
+    ///   - condition: A condition that determines wether a country can execute this command. Default: .empty (no condition)
+    init(name: String, description: String, effects: [Effect], cost: Int, customApplyMessage: String? = nil, condition: Condition = .empty) {
         self.name = name
         self.description = description
         self.effects = effects
         self.customApplyMessage = customApplyMessage
         self.cost = cost
-        self.flags = flags
-        self.prerequisitesNames = prerequisites
-    }
-    
-    /// The 'database' of commands known in the game.
-    private static var allCommands = loadCommands()
-    
-    /// Populates the 'database' of commands, from a game supplied JSON.
-    /// - Returns: all the commands that are found in the datafile.
-    private static func loadCommands() -> [CountryCommand] {
-        do {
-            let url = URL(fileURLWithPath: "Data/CountryCommands.json")
-            let countryJSON = try Data(contentsOf: url)
-            let decoder = JSONDecoder()
-            let commands = try decoder.decode([CountryCommand].self, from: countryJSON)
-            return commands
-        } catch {
-            fatalError("Failed to load commands: \(error)")
-        }
-    }
-    
-    /// Get a command from the 'database'.
-    /// - Parameter name: the commands name.
-    /// - Returns: the command (if found)
-    public static func getCommand(_ name: String) throws -> CountryCommand {
-        if let command = allCommands.first(where: { $0.name == name }) {
-            return command
-        }
-        throw CountryCommandErrors.commandNotFound
+        self.condition = condition
     }
     
     /// Applies this command's effects to a country in a world.
@@ -142,11 +110,4 @@ public struct CountryCommand: Codable, Equatable {
             return "No effect"
         }
     }
-}
-
-/// Known flags for `CountryCommand`s
-public enum CountryCommandFlag: Codable, Equatable {
-    
-    /// Mark this command as intended for debugging only.
-    case debugModeOnly
 }

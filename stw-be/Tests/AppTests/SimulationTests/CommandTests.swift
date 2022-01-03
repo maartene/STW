@@ -33,7 +33,7 @@ class CommandTests: XCTestCase {
     }
     
     func testExampleCommand() throws {
-        let command = try CountryCommand.getCommand("Example command")
+        let command = CountryCommand(name: "Example command", description: "it does nothing!", effects: [], cost: 0)
         let result = netherlands.executeCommand(command, in: earth)
         XCTAssertEqual(result.resultMessage, "Example command succesfully applied.")
     }

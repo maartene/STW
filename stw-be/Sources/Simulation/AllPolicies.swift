@@ -38,6 +38,10 @@ struct AllPolicies {
         result.append(Policy(name: "Accept foreign aid", description: nil,
                              effects: [.extraGDP(percentage: 1), .extraGini(points: 0.01)], baseCost: 5, condition: .lessThanOrEqualWealth(ranking: .E), policyCategory: .economic))
         
+        result.append(Policy(name: "Increase base interest", description: "Have your central bank increase the base interest rate. This tends to decrease income, but also increase equality as it harms those with assets more than others.", effects: [.extraGDP(percentage: -1), .extraGini(points: -2)], baseCost: 8, condition: .greaterThanOrEqualWealth(ranking: .E), policyCategory: .economic))
+        
+        result.append(Policy(name: "Decrease base interest", description: "Have your central bank decrease the base interest rate. This tends to increase income, but also increase inequality as it favours those who have assets.", effects: [.extraGDP(percentage: 1), .extraGini(points: 2)], baseCost: 2, policyCategory: .economic))
+        
         // education
         result.append(Policy(name: "Free schools", description: nil, effects: [
             .extraGDP(percentage: -2), .extraEDI(percentage: 1)], baseCost: 5, condition: .greaterThanOrEqualBudget(ranking: .A), policyCategory: .education))
@@ -58,7 +62,12 @@ struct AllPolicies {
         
         result.append(Policy(name: "Enact police state", description: nil, effects: [.freePoints(points: 2), .extraGDP(percentage: -2), .extraGini(points: 0.2)], baseCost: 1, condition: .lessThanOrEqualBudget(ranking: .D), policyCategory: .political))
         
-        result.append(Policy(name: "Propaganda", effects: [.freePoints(points: 1)], baseCost: 5, condition: .lessThanOrEqualEDI(ranking: .C), policyCategory: .political))
+        result.append(Policy(name: "Propaganda", effects: [.freePoints(points: 1), .extraEDI(percentage: -1.5)], baseCost: 5, condition: .lessThanOrEqualEDI(ranking: .C), policyCategory: .political))
+        
+        // emission trade
+        result.append(Policy(name: "Sell emission rights", description: "This leads to a net increase in emissions that are tallied with your country.", effects: [.extraBudget(points: 0.5), .extraGDP(percentage: 2), .extraEmissions(percentage: 3)], baseCost: 3, condition: .greaterThanOrEqualEmissionsPerCapita(ranking: .C), policyCategory: .emissionTrade))
+        
+        result.append(Policy(name: "Buy emission rights", description: "This leads to a net decrease in emissions that are tallied with your country.", effects: [.extraBudget(points: -0.5), .extraGDP(percentage: -2), .extraEmissions(percentage: -3)], baseCost: 3, condition: .and([.greaterThanOrEqualBudget(ranking: .C), .greaterThanOrEqualWealth(ranking: .C)]), policyCategory: .emissionTrade))
         
         // co2 storage
         result.append(Policy(name: "Build CO2 storage facility", description: nil, effects: [.extraEmissions(percentage: -1)], baseCost: 10,

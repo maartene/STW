@@ -134,6 +134,7 @@ public enum PolicyCategory: String, Codable {
     case economic
     case education
     case political
+    case emissionTrade = "Emission Trade"
     
     /// The maximum number of active policies of a category a country can have active. `nil` means: no maximum.
     var policyLimit: Int? {
@@ -145,6 +146,8 @@ public enum PolicyCategory: String, Codable {
         case .education:
             return 1
         case .political:
+            return 1
+        case .emissionTrade:
             return 1
         case .co2storage:
             return 3

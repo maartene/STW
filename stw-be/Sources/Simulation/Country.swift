@@ -142,7 +142,13 @@ public struct Country: Codable {
     ///   - earth: the earth this command is executed in.
     /// - Returns: an updated version of the country, with the effects of the command applied.
     public func executeCommand(_ command: CountryCommand, in earth: Earth) -> (result: Bool, updatedCountry: Country, resultMessage: String) {
-        let commandResult = command.applyEffect(to: self, in: earth)
+        guard countryPoints >= command.cost else {
+            return (false, self, "Not enough points to execute command \(command.name).")
+        }
+        
+        var commandResult = command.applyEffect(to: self, in: earth)
+        commandResult.updatedCountry.countryPoints -= command.cost
+        
         return (true, commandResult.updatedCountry, commandResult.resultMessage)
     }
     

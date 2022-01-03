@@ -124,14 +124,7 @@ struct GameController: RouteCollection {
         
         let countryModel = playerAndCountryModel.countryModel
         
-        let debugMode = Environment.get("DEBUG_MODE")?.uppercased() == "TRUE"
-        var filteredCommands = countryModel.country.availableCommands
-        
-        if debugMode == false {
-            filteredCommands = filteredCommands.filter {
-                $0.flags.contains(.debugModeOnly) == false
-            }
-        }
+        let filteredCommands = countryModel.country.availableCommands
         
         return filteredCommands.map { CommandInfo($0) }
     }
