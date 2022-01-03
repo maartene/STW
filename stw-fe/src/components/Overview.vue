@@ -52,9 +52,10 @@ export default {
     name: "Overview",
     props: {
         gameData: {
-            messages: []
+            messages: [""]
         }
     }
+    
 }
 </script>
 
