@@ -1,6 +1,8 @@
 # STW
 MongoDB+Dev hackathon entry: a game where we - dare I say it - Save The World!
 
+## You can play a live build at [https://www.letssavetheworld.club](https://www.letssavetheworld.club)
+
 ## Project setup
 The application consists of two parts:
 * API backend: written in Swift using the Vapor framework;
