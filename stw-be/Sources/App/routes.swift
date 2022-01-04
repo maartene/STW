@@ -10,6 +10,13 @@ func routes(_ app: Application) throws {
 //        return "Hello, world!"
 //    }
 
+struct Alive:Content {
+let message: String
+}
+    app.get("alive") { req -> Alive in
+	return Alive(message: "OK") 
+    }
+
     try app.register(collection: EarthModelController())
     try app.register(collection: CountryModelController())
     try app.register(collection: GameController())
