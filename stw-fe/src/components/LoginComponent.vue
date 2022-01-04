@@ -15,8 +15,6 @@
             </div>
 
             <button type="submit" class="btn btn-primary mb-3">Submit</button>
-
-            <button v-on:click="fill" class="btn btn-danger mb-3">Let me in!</button>
             </form>
         </div>
         <div class="col-md p-3 mx-3 border">
@@ -70,11 +68,6 @@ export default {
     },
     emits: ['login'],
     methods: {
-        fill() {
-            this.email = "maartene@mac.com";
-            this.password = "FooBar123";
-            this.login();
-        },
         login() {
             const token = Buffer.from(`${this.email}:${this.password}`, 'utf8').toString('base64')
             axios.post(`${this.STW_API_ENDPOINT}/players/login/`, {}, {

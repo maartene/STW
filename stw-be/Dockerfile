@@ -22,14 +22,14 @@ RUN swift package resolve
 # Copy entire repo into container
 COPY . .
 
-# Build everything, with optimizations
-RUN swift build -c release
+# Build everything, without optimizations
+RUN swift build
 
 # Switch to the staging area
 WORKDIR /staging
 
 # Copy main executable to staging area
-RUN cp "$(swift build --package-path /build -c release --show-bin-path)/Run" ./
+RUN cp "$(swift build --package-path /build -c debug --show-bin-path)/Run" ./
 
 # Copy any resouces from the public directory and views directory if the directories exist
 # Ensure that by default, neither the directory nor any of its contents are writable.
