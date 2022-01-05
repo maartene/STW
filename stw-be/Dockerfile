@@ -1,7 +1,7 @@
 # ================================
 # Run image
 # ================================
-FROM stwbe:0.0.1
+FROM maartene/stwbe:0.0.1
 
 # Let Docker bind to port 8080
 EXPOSE 8080
