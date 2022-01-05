@@ -5,9 +5,6 @@
 //  Created by Maarten Engels on 18/12/2021.
 //
 
-// TODO: need to change these to hard coded commands in seperate file 'allCommands' (like 'allPolicies')
-// TODO: use Condition system (just like Policy), instead of 'prerequisites'.
-
 import Foundation
 
 /// Definition of all possible commands that can be performed by a country.
@@ -15,12 +12,12 @@ import Foundation
 /// `Codable` conformance makes it easy to send and receive commands between backend and front-end.
 public struct CountryCommand: Codable, Equatable {
     
-    /// Errors associated with this command.
-    public enum CountryCommandErrors: Error {
-        
-        /// The command cannot be found in the list of known commands.
-        case commandNotFound
-    }
+//    /// Errors associated with this command.
+//    public enum CountryCommandErrors: Error {
+//
+//        /// The command cannot be found in the list of known commands.
+//        case commandNotFound
+//    }
     
     /// A descriptive name, that also acts as the primary key for the command.
     public let name: String

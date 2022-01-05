@@ -15,37 +15,50 @@ import Foundation
 public struct Country: Codable {
     
     // MARK: Data & Init
-    /// assumed reduction in carbon emissions per thousand US$ (in gigaton).
-    //public static let EMISSION_REDUCTION_PER_THOUSAND_USDOLLAR = 0.000001
     
-    
-    /// assumed extraction of carbon per thousand US$ (i.e. net negative emissions) in gigaton carbon.
-    //public static let CARBON_SCRUBBED_PER_THOUSAND_USDOLLAR = 0.0000005
-    
-    
-    /// The country name, as per ISO
+    /// The country name, as per ISO-3166
+    ///
+    /// License:
+    /// This Data Package is made available under the Public Domain Dedication and License v1.0 whose full text can be found at: http://www.opendatacommons.org/licenses/pddl/1.0/
     public let name: String
     
-    /// ISO 2 letter country code
+    /// ISO-3166 2 letter country code
+    ///
     /// Source: https://datahub.io/core/country-codes
+    ///
+    /// License:
+    /// This Data Package is made available under the Public Domain Dedication and License v1.0 whose full text can be found at: http://www.opendatacommons.org/licenses/pddl/1.0/
     public let countryCode: String
     
     /// The countries base yearly emissions (in gigaton carbon) in 2015.
+    ///
     /// Source: https://datahub.io/core/co2-fossil-by-nation (normalized to climate model)
+    ///
+    /// Citation:
+    /// Boden, T.A., G. Marland, and R.J. Andres. 2013. Global, Regional, and National Fossil-Fuel CO2 Emissions. Carbon Dioxide Information Analysis Center, Oak Ridge National Laboratory, U.S. Department of Energy, Oak Ridge, Tenn., U.S.A. doi 10.3334/CDIAC/00001_V2013 _
+    ///
+    /// License: This Data Package is made available under the Public Domain Dedication and License v1.0 whose full text can be found at: http://www.opendatacommons.org/licenses/pddl/1.0/
     public var baseYearlyEmissions: Double
     
     /// The countries yearly emissions (in gigaton carbon).
     public var yearlyEmissions: Double
     
     /// The base GDP (in 1000 US$) in 2015
+    ///
     /// Source: https://datahub.io/core/gdp
+    ///
+    /// License:
+    /// This Data Package is made available under the Public Domain Dedication and License v1.0 whose full text can be found at: http://www.opendatacommons.org/licenses/pddl/1.0/
     public var baseGDP: Double
     
     // The current GDP (in 1000 US$)
     public var GDP: Double
     
     /// The current population of the country
+    ///
     /// Source: https://datahub.io/core/population
+    ///
+    /// This Data Package is made available under the Public Domain Dedication and License v1.0 whose full text can be found at: http://www.opendatacommons.org/licenses/pddl/1.0/
     public var population: Int
     
     /// The current active policies
@@ -55,25 +68,25 @@ public struct Country: Codable {
     public var countryPoints = 1
     
     /// The budget surplus (positive values) or deficit (negative values) in % GDP
+    ///
     /// Source: https://datahub.io/core/cash-surplus-deficit
+    ///
+    /// License:
+    /// This Data Package is made available under the Public Domain Dedication and License v1.0 whose full text can be found at: http://www.opendatacommons.org/licenses/pddl/1.0/
     public var budgetSurplus: Double
     
     /// The amount of (in)equality in the country. Range: (0...1). Higher values indicate more inequality.
+    ///
     /// Source: https://datahub.io/core/gini-index
+    ///
+    /// License:
+    /// This Data Package is made available under the Public Domain Dedication and License v1.0 whose full text can be found at: http://www.opendatacommons.org/licenses/pddl/1.0/
     public var giniRating: Double
     
     /// The level of education in the country, as determined using the EDI. Range: (0...1). Higer values indicate better education.
+    ///
     /// Source: http://www.unesco.org/new/en/archives/education/themes/leading-the-international-agenda/efareport/statistics/efa-development-index/edi-archive/ (Education For All Global Monitoring Report)
     public var educationDevelopmentIndex: Double
-    
-    /// Returns the net GDP this country has to spend, after 'paying' for damages caused by temperature increase.
-    /// - Parameter earth: the simulated earth this country is a part of.
-    /// - Returns: the GDP for this country in 1000 US$ (taking damages of temperature change into account).
-    ///
-    /// This function assumes a flat net impact of temperature change for each country. We know this is not correct and will improve this function to take geographical and economic differences into account.
-//    public func getCorrectedGDP(_ earth: Earth) -> Double {
-//        GDP * (1.0 - earth.currentCostOfTemperatureChange / 100.0)
-//    }
     
     /// Creates a new country.
     /// - Parameters:
@@ -120,9 +133,6 @@ public struct Country: Codable {
             self = effect.applyEffect(to: self, in: earth)
         }
         
-//        let sortedActivePolicies = activePolicies.sorted {
-//            $0.priority < $1.priority
-//        }
         // Apply policy effects
         for policy in activePolicies {
             self = policy.applyEffects(to: self, in: earth)

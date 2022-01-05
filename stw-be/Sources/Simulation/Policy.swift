@@ -29,11 +29,6 @@ public struct Policy: Codable, Equatable {
         baseCost * faculty(level)
     }
     
-    /// Determines the sequence in which policies are applied to a country during an update. Lower values are applied first. `0` indicated 'neutral'.
-    ///
-    /// I.e. if you have something you want to apply first, give a big negative value. If you want something to be applied last, give a big positive number.
-    //let priority: Int
-    
     /// the condition that determines when this policy can be applied by a country.
     public let condition: Condition
 
@@ -56,7 +51,6 @@ public struct Policy: Codable, Equatable {
         try container.encode(level, forKey: .level)
         try container.encode(effects, forKey: .effects)
         try container.encode(baseCost, forKey: .baseCost)
-        //try container.encode(priority, forKey: .priority)
         try container.encode(condition, forKey: .condition)
         try container.encode(category, forKey: .category)
     }
@@ -71,7 +65,6 @@ public struct Policy: Codable, Equatable {
         level = try values.decode(Int.self, forKey: .level)
         effects = try values.decode([Effect].self, forKey: .effects)
         baseCost = try values.decode(Int.self, forKey: .baseCost)
-        //priority = try values.decode(Int.self, forKey: .priority)
         condition = (try? values.decode(Condition.self, forKey: .condition)) ?? .empty
         category = (try? values.decode(PolicyCategory.self, forKey: .category)) ?? .miscelaneous
     }

@@ -28,28 +28,21 @@ struct UpdateEarthTask: AsyncScheduledJob {
         let earths = try await EarthModel.query(on: context.application.db).all()
         
         for earthModel in earths {
-            // because scheduled tasks sometimes fire twice, we check whether some time has passed since the last "fire"
-//            let elapsedTime = updateDate.timeIntervalSince(earthModel.lastUpdate)
-//            context.logger.debug("Elapsed time since last update: \(elapsedTime)")
-//
-//            if elapsedTime > MIN_UPDATE_ELAPSED_TIME {
-                let countryModels = try await CountryModel.query(on: context.application.db)
-                    .filter(\.$earthID, .equal, earthModel.id!).all()
-                
-                let countries = countryModels.map { $0.country }
-                
-                let emissions = countries.map { $0.yearlyEmissions }
-                let totalEmissions = emissions.reduce(0, +)
-                
-                context.logger.debug("Earth \(earthModel.id?.uuidString ?? "unknown") vitals before: \(earthModel.earth.debugVitals)")
-                earthModel.earth.tick(yearlyEmission: totalEmissions)
-                context.logger.debug("Earth \(earthModel.id?.uuidString ?? "unknown") vitals before: \(earthModel.earth.debugVitals)")
-                
-//                earthModel.lastUpdate = updateDate
-                try await earthModel.save(on: context.application.db)
-                
-                try await EarthLog.logMessage("Welcome to \(earthModel.earth.currentYear)!", for: earthModel.id!, on: context.application.db)
-//            }
+            let countryModels = try await CountryModel.query(on: context.application.db)
+                .filter(\.$earthID, .equal, earthModel.id!).all()
+            
+            let countries = countryModels.map { $0.country }
+            
+            let emissions = countries.map { $0.yearlyEmissions }
+            let totalEmissions = emissions.reduce(0, +)
+            
+            context.logger.debug("Earth \(earthModel.id?.uuidString ?? "unknown") vitals before: \(earthModel.earth.debugVitals)")
+            earthModel.earth.tick(yearlyEmission: totalEmissions)
+            context.logger.debug("Earth \(earthModel.id?.uuidString ?? "unknown") vitals before: \(earthModel.earth.debugVitals)")
+
+            try await earthModel.save(on: context.application.db)
+            
+            try await EarthLog.logMessage("Welcome to \(earthModel.earth.currentYear)!", for: earthModel.id!, on: context.application.db)
         }
     }
 }

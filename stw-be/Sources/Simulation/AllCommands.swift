@@ -7,7 +7,10 @@
 
 import Foundation
 
+/// A data structure that holds all known commands in the game.
 struct AllCommands {
+    
+    /// All known commands
     private static let all = getAllCommands()
     
     /// Builds an array of all policies
@@ -22,8 +25,12 @@ struct AllCommands {
         return result
     }
     
+    /// Gets all the commands a country can execute.
+    /// - Parameter country: the `country` for which we want to get the commands back.
+    /// - Returns: An array of commands.
+    ///
+    /// Note: the returned array of `CountryCommand`s is filtered on the condition that the command has.
     public static func getCountryCommandsFor(_ country: Country) -> [CountryCommand] {
-        all
-        
+        all.filter { $0.condition.evaluate(for: country) }
     }
 }

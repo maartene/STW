@@ -81,12 +81,7 @@ struct AuthenticationController: RouteCollection {
         try await EarthLog.logMessage("\(countryModel.country.name) was claimed.", for: countryModel.earthID, on: req.db)
         
         return "Player succesfully created. You can now log in."
-    }
-    
-//    // FIXME: for debug purposes only
-//    func index(req: Request) throws -> EventLoopFuture<[Player]> {
-//        return Player.query(on: req.db).all()
-//    }
+    }    
 }
 
 extension Player {

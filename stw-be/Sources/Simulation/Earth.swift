@@ -118,33 +118,6 @@ public struct Earth {
     }
     
     // MARK: Cost of climate change model
-    /// https://www.e-education.psu.edu/earth103/node/717
-    /// Damage due to climate change as a function of temperature change
-    /// in % global economy
-    
-    
-//    static let BASE_GLOBAL_ECONOMY_2019: Double = 86_000_000_000_000 // dollars -> https://www.visualcapitalist.com/the-86-trillion-world-economy-in-one-chart/
-    
-    
-    /// Calculates the cost of temperature increase for an amount of temperature increase.
-    /// - Parameter deltaT: the change in temperature compared to the base temperature
-    /// - Returns: the damage due to temperature increase in percentage of GDP
-    ///
-    /// This function assumes an even impact on GDP for all countries, without taking into account geographic and economic differences. This gross simplification will need to be fixed in the future.
-//    public func costOfTemperatureChangePct(deltaT: Double) -> Double {
-//        0.3098 * deltaT * deltaT + 0.614 * deltaT
-//    }
-
-//    public func costOfTemperatureChangeDollars(deltaT: Double) -> Double {
-//        costOfTemperatureChangePct(deltaT: deltaT) / 100.0 * Self.BASE_GLOBAL_ECONOMY_2019
-//    }
-    
-    /// The current cost/damages of temperature change (in percentage of GDP)
-//    public var currentCostOfTemperatureChange: Double {
-//        let deltaT = currentTemperature - Self.BASE_TEMPERATURE_2015
-//        let cost = costOfTemperatureChangePct(deltaT: deltaT)
-//        return max(0, cost)
-//    }
     
     /// (Adverse) effects from increased global warming. These effects become more severe as the global average temperature increases.
     public var currentEffectsOfTemperatureChange: [Effect] {
@@ -184,6 +157,7 @@ public struct Earth {
         }
     }
     
+    /// The effects of the current level of global warming in a human readable string.
     public var effectDescription: String {
         let effects = currentEffectsOfTemperatureChange
         
