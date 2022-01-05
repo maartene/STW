@@ -62,21 +62,6 @@ The following endpoints are protected by bearer token authentication:
 * `POST /game/country/policies/levelup` : sends a policy to levelup (in the payload of the request as JSON). Returns a message (string) indicating what happened.
 * `GET game/country/forecast/` : retrieves forecasted versions of the current earth and country in JSON format. 
 
-### Docker
-* There is a basic `docker-compose.yml` file in the STW root directory.
-* The official Swift Docker images only support Intel/AMD64 architectures. Running the game on a Raspberry PI using Docker is out of the question.
-* Most likely you will need to set environment variables. I recommend using a `.env` file for this purpose. (`.env` is included in `.gitignore`, so you shouldn't worry about secrets leaking this way.)
-
-Start by building the Docker images:
-
-`# docker compose build` (this will take a while)
-
-And then run the images in containers:
-
-`# docker compose up`
-
-If all went well, you can now access your game from the front-end exposed port: `8080`
-
 ## Playing the game
 Coming soon.
 
