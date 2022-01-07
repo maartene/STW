@@ -6,7 +6,10 @@
             <button type="button" class="btn-close" v-on:click="message = ''" aria-label="Close"></button>
         </div>
     </div>
-    <div class="border">
+    <div v-if="shouldClaimCountry">
+        <ClaimCountry v-bind:token="token" @countryClaimed="countryClaimed"/>
+    </div>
+    <div class="border" v-else>
     
         <div class="m-3">
             <h1>
@@ -41,6 +44,7 @@ import InactivePolicies from './InactivePolicies.vue';
 import Commands from './Commands.vue';
 import Forecast from './Forecast.vue';
 import Overview from './Overview.vue';
+import ClaimCountry from './ClaimCountry.vue'
 
 
 export default {
@@ -53,13 +57,17 @@ export default {
         InactivePolicies,
         Commands,
         Forecast,
-        Overview
+        Overview,
+
+        ClaimCountry
+
     },
     emits: [
         "revokePolicy",
         "enactPolicy",
         "levelUpPolicy",
-        "executeCommand"
+        "executeCommand",
+        "countryClaimed"
     ],
     data() {
         return {
@@ -121,13 +129,32 @@ export default {
                     }
                 ]
             },
-            message: ""
+            message: "",
+            shouldClaimCountry: false
         }
     },
     props: {
         token: String
     },
     methods: {
+        hasCountry() {
+            axios.get(`${this.STW_API_ENDPOINT}/game/country/hasCountry`, {
+                headers: {
+                    "Authorization": `bearer ${this.token}`
+                }
+            })
+            .then(response => {
+                if (response.data == true) {
+                    this.refresh();
+                } else {
+                    this.shouldClaimCountry = true;
+                }
+            })
+            .catch(e => {
+                console.log(e);
+                this.errors.push(e);
+            })  
+        },
         refresh() {
             axios.get(`${this.STW_API_ENDPOINT}/game/country/`, {
                 headers: {
@@ -144,6 +171,7 @@ export default {
                     // JSON responses are automatically parsed.
                     //console.log(response.data)
                     this.gameData.messages = response.data;
+                    this.shouldClaimCountry = false;
                 })
                 .catch(e => {
                     this.errors.push(e);
@@ -258,6 +286,10 @@ export default {
                 this.errors.push(e);
             })
         },
+        countryClaimed() {
+            this.shouldClaimCountry = false
+            this.refresh()
+        },
         // Source: https://alanedwardes.com/blog/posts/country-code-to-flag-emoji-csharp/
         isoCountryCodeToFlagEmoji(country)
         {
@@ -266,7 +298,7 @@ export default {
     },
     // Fetch game data when the component is created
     created() {
-        this.refresh();
+        this.hasCountry();
     }
 }
 </script>

@@ -5,8 +5,8 @@
     </div>
   </nav>
   <div class="container-flex m-3 p-3">
-    
-    <div class="alert alert-secondary mx-1 p-3">
+    <div class="alert alert-dismissible alert-secondary mx-1 p-3">
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
       <h4 class="alert-heading">This is pre-release software!</h4>
       <ul>
         <li>This software can go down to push a new version at any time, you may lose your progress at any time.</li>

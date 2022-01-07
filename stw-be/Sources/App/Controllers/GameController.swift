@@ -9,6 +9,7 @@ import Fluent
 import Vapor
 import Simulation
 import Foundation
+import Algorithms
 
 struct GameController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
@@ -16,6 +17,7 @@ struct GameController: RouteCollection {
         let protectedGame = game.grouped(UserToken.authenticator())
         
         protectedGame.group("country") { gameGroup in
+            gameGroup.get("hasCountry", use: hasCountry)
             gameGroup.get(use: getFullData)
             gameGroup.post(use: executeCommand)
             gameGroup.group("commands") { commandGroup in
@@ -29,6 +31,10 @@ struct GameController: RouteCollection {
             }
             gameGroup.group("forecast") {forecastGroup in 
                 forecastGroup.get(use: getForecast)
+            }
+            gameGroup.group("claim") { claimGroup in
+                claimGroup.get(use: getUnclaimedCountries)
+                claimGroup.post(use: claimCountry)
             }
         }
     }
@@ -94,6 +100,12 @@ struct GameController: RouteCollection {
         }
         
         return (player, countryModel)
+    }
+    
+    func hasCountry(req: Request) async throws -> String {
+        let player = try req.auth.require(Player.self)
+        
+        return (player.countryID != nil ? "true" : "false")
     }
     
     func getFullData(req: Request) async throws -> FullDataResponse {
@@ -292,4 +304,46 @@ struct GameController: RouteCollection {
 
         return result
     }
+    
+    // MARK: Claim country
+    func getUnclaimedCountries(req: Request) async throws -> [CountryModel] {
+        let availableCountryModels = try await CountryModel.query(on: req.db).filter(\.$playerID, .equal, .none).all()
+        
+        // get a random selection of countryModels
+        let selection = availableCountryModels.randomSample(count: 20).sorted(by: { model1, model2 in
+            model1.country.yearlyEmissions > model2.country.yearlyEmissions
+        })
+        
+        return selection
+    }
+    
+    func claimCountry(req: Request) async throws -> String {
+        let player = try req.auth.require(Player.self)
+        
+        guard player.countryID == nil else {
+            throw Player.PlayerError.playerAlreadyHasCountry
+        }
+        
+        guard let requestedCountry = try? req.content.decode(CountryModel.self) else {
+            throw Abort(.badRequest)
+        }
+        
+        guard let countryModel = try await CountryModel.find(requestedCountry.id, on: req.db) else {
+            throw Abort(.notFound)
+        }
+        
+        guard countryModel.playerID == nil else {
+            throw Abort(.badRequest)
+        }
+        
+        player.countryID = countryModel.id
+        countryModel.playerID = player.id
+        
+        try await player.save(on: req.db)
+        try await countryModel.save(on: req.db)
+        
+        return "success"
+        
+    }
+    
 }

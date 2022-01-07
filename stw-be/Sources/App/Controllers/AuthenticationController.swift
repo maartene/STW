@@ -31,20 +31,6 @@ struct AuthenticationController: RouteCollection {
         playerRoutes.post(use: create)
     }
     
-    private func claimCountry(player: Player, db: Database) async throws -> CountryModel {
-        guard player.countryID == nil else {
-            throw Player.PlayerError.playerAlreadyHasCountry
-        }
-        
-        let availableCountryModels = try await CountryModel.query(on: db).filter(\.$playerID, .equal, .none).all()
-        
-        guard let availableCountryModel = availableCountryModels.randomElement() else {
-            throw Player.PlayerError.noFreeCountriesAvailable
-        }
-        
-        return availableCountryModel
-    }
-    
     func create(req: Request) async throws -> String {
         try Player.Create.validate(content: req)
         let create = try req.content.decode(Player.Create.self)
@@ -65,20 +51,6 @@ struct AuthenticationController: RouteCollection {
         )
         
         try await player.save(on: req.db)
-        
-        // Let's get this player a country
-        // First, let's get a country that hasn't been claimed yet.
-        let countryModel = try await claimCountry(player: player, db: req.db)
-        
-        // Then, assign it to the player and vice versa.
-        countryModel.playerID = player.id
-        player.countryID = countryModel.id
-        
-        // Save changes
-        try await countryModel.save(on: req.db)
-        try await player.save(on: req.db)
-        
-        try await EarthLog.logMessage("\(countryModel.country.name) was claimed.", for: countryModel.earthID, on: req.db)
         
         return "Player succesfully created. You can now log in."
     }    

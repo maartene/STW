@@ -76,3 +76,4 @@ Apache 2.0 license.
 * vue.js framework (https://v3.vuejs.org)
 * Vapor framework (https://vapor.codes)
 * Bootstrap (https://getbootstrap.com)
+* Various data sources. These are defined in the source code.
