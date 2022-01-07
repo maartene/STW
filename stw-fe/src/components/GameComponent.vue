@@ -6,6 +6,13 @@
             <button type="button" class="btn-close" v-on:click="message = ''" aria-label="Close"></button>
         </div>
     </div>
+    <div class="alert alert-warning d-flex align-items-center alert-dismissible fade show" role="alert" v-if="warningMessage != ''">
+        <img src="/img/bootstrap-icons/exclamation-circle.svg" alt="Exclamation circle">&nbsp;&nbsp;
+        <div>
+            {{warningMessage}}
+            <button type="button" class="btn-close" v-on:click="warningMessage = ''" aria-label="Close"></button>
+        </div>
+    </div>
     <div v-if="shouldClaimCountry">
         <ClaimCountry v-bind:token="token" @countryClaimed="countryClaimed"/>
     </div>
@@ -130,6 +137,7 @@ export default {
                 ]
             },
             message: "",
+            warningMessage: "",
             shouldClaimCountry: false
         }
     },
@@ -151,8 +159,9 @@ export default {
                 }
             })
             .catch(e => {
-                console.log(e);
-                this.errors.push(e);
+                //console.log(e);
+                this.warningMessage = `An error occured while determining if player already has a country: ${e}`
+                //this.errors.push(e);
             })  
         },
         refresh() {
@@ -174,11 +183,13 @@ export default {
                     this.shouldClaimCountry = false;
                 })
                 .catch(e => {
-                    this.errors.push(e);
+                    this.warningMessage = `An error occured while retrieving Earth logs: ${e}`
+                    //this.errors.push(e);
                 })
             })
             .catch(e => {
-                this.errors.push(e);
+                this.warningMessage = `An error occured while retrieving game data: ${e}`
+                //this.errors.push(e);
             })
 
             axios.get(`${this.STW_API_ENDPOINT}/game/country/policies/`, {
@@ -192,7 +203,8 @@ export default {
                 this.policies = response.data;
             })
             .catch(e => {
-                this.errors.push(e);
+                this.warningMessage = `An error occured while retrieving policies: ${e}`
+                //this.errors.push(e);
             })
 
             axios.get(`${this.STW_API_ENDPOINT}/game/country/commands/`, {
@@ -206,7 +218,8 @@ export default {
                 this.commands = response.data;
             })
             .catch(e => {
-                this.errors.push(e);
+                this.warningMessage = `An error occured while retrieving commands: ${e}`
+                //this.errors.push(e);
             })
 
         },
@@ -226,7 +239,8 @@ export default {
                 this.refresh();
             })
             .catch( e => {
-                this.errors.push(e);
+                this.warningMessage = `An error occured while executing command: ${e}`
+                //this.errors.push(e);
             })
         },
 
@@ -245,7 +259,8 @@ export default {
                 this.refresh();
             })
             .catch( e => {
-                this.errors.push(e);
+                this.warningMessage = `An error occured while enacting policy: ${e}`
+                //this.errors.push(e);
             })
         },
 
@@ -264,7 +279,8 @@ export default {
                 this.refresh();
             })
             .catch( e => {
-                this.errors.push(e);
+                this.warningMessage = `An error occured while revoking policy: ${e}`
+                // this.errors.push(e);
             })
         },
 
@@ -283,7 +299,8 @@ export default {
                 this.refresh();
             })
             .catch( e => {
-                this.errors.push(e);
+                this.warningMessage = `An error occured while leveling up policy: ${e}`
+                //this.errors.push(e);
             })
         },
         countryClaimed() {

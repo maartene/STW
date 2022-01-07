@@ -1,4 +1,11 @@
 <template>
+    <div class="alert alert-warning d-flex align-items-center alert-dismissible fade show" role="alert" v-if="warningMessage != ''">
+        <img src="/img/bootstrap-icons/exclamation-circle.svg" alt="Exclamation circle">&nbsp;&nbsp;
+        <div>
+            {{warningMessage}}
+            <button type="button" class="btn-close" v-on:click="warningMessage = ''" aria-label="Close"></button>
+        </div>
+    </div>
     <div class="row">
         <div class="col-md p-3 mx-3 border">
             <h2>Login</h2>
@@ -64,6 +71,7 @@ export default {
             registerPassword: "",
             registerconfirmPassword: "",
             registerMessage: "",
+            warningMessage: ""
         }
     },
     emits: ['login'],
@@ -82,7 +90,8 @@ export default {
                 });
             })
             .catch(e => {
-                this.errors.push(e);
+                this.warningMessage = `An error occured when loggin in: ${e}`
+                //this.errors.push(e);
             })
         },
         register() {
@@ -100,7 +109,8 @@ export default {
                 this.registerMessage = response.data
             })
             .catch(e => {
-                this.errors.push(e);
+                this.warningMessage = `An error occured when creating player: ${e}`
+                //this.errors.push(e);
             })
         }
     }

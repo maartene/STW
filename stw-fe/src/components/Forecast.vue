@@ -644,7 +644,7 @@ export default {
                 this.budgetChart = new Chart(budgetCtx, countryBudgetChartData);
             })
             .catch(e => {
-                console.log(e);
+                console.log(`Error occurred retrieving forecast: ${e}`);
             })
         }
     },
