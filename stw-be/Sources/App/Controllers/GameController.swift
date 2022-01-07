@@ -309,7 +309,7 @@ struct GameController: RouteCollection {
     func getUnclaimedCountries(req: Request) async throws -> [CountryModel] {
         let availableCountryModels = try await CountryModel.query(on: req.db).filter(\.$playerID, .equal, .none).all()
         
-        // get a random selection of countryModels
+        // get a random selection of countryModels and return in descending order of yearly emissions
         let selection = availableCountryModels.randomSample(count: 20).sorted(by: { model1, model2 in
             model1.country.yearlyEmissions > model2.country.yearlyEmissions
         })

@@ -1,5 +1,8 @@
 <template>
   <h3>Claim your country!</h3>
+  <p>In this game you will play as a country. You will set policies that influence your country's economy, population and emissions. And emissions influence the entire world.</p>
+  <p>Please claim a country to play as.</p>
+  <p class="text-info">Hint: a country with higher yearly emissions has more impact op global warming.</p>
   <p v-if="message != ''">{{message}}</p>
   <table class="table">
       <thead>
@@ -26,20 +29,7 @@ export default {
     name: "ClaimCountry",
     data() {
         return {
-            countries: [
-                { country: {
-                        name: "China",
-                        yearlyEmissions: 3
-                    }, 
-                    id: "1234" 
-                },
-                { country: {
-                        name: "Netherlands",
-                        yearlyEmissions: 3
-                    }, 
-                    id: "12332" 
-                }
-            ],
+            countries: [],
             message: ""
         }
     },

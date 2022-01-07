@@ -40,8 +40,8 @@
         </div>
     </div>
     <h5>Current effects of global warming</h5>
-    <p>{{gameData.earthEffectsDescription}}</p>
-    <h5>Messages</h5>
+    <p class="text-danger">{{gameData.earthEffectsDescription}}</p>
+    <h5>Messages from around the Earth</h5>
     <ul class="list-group">
         <li class="list-group-item" v-for="message in gameData.messages" :key="message">{{message}}</li>
     </ul>
