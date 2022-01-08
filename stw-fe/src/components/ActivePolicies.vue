@@ -22,8 +22,8 @@
                 <td>{{policy.effectDescription}}</td>
                 <td>{{policy.upgradeCost}}</td>
                 <td>
-                    <button class="btn btn-sm btn-danger" v-on:click="revokePolicy(policy.policy)">Revoke</button>&nbsp;
-                    <button class="btn btn-sm btn-success" v-on:click="levelUpPolicy(policy.policy)">Improve</button>
+                    <button class="btn btn-sm btn-danger" v-on:click="revokePolicy({ token, policy })">Revoke</button>&nbsp;
+                    <button class="btn btn-sm btn-success" v-on:click="levelupPolicy({ token, policy })">Improve</button>
                 </td>
             </tr>
         </tbody>
@@ -31,27 +31,15 @@
 </template>
 
 <script>
+import { mapGetters, mapActions } from 'vuex';
+
 export default {
     name: "ActivePolicies",
     props: {
-        activePolicies: Array 
+        token: String
     },
-    emits: [
-        "revokePolicy",
-        "levelUpPolicy"
-    ],
-    methods: {
-        revokePolicy(policy) {
-            this.$emit('revokePolicy', {
-                "policy": policy
-            });
-        },
-        levelUpPolicy(policy) {
-            this.$emit('levelUpPolicy', {
-                "policy": policy
-            });
-        }
-    }
+    computed: mapGetters(['activePolicies']),
+    methods: mapActions(['revokePolicy', 'levelupPolicy'])
 }
 </script>
 
