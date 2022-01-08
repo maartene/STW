@@ -19,8 +19,8 @@ struct AllCommands {
         var result = [CountryCommand]()
         
         result.append(CountryCommand(name: "Example command", description: "It does nothing!", effects: [], cost: 0))
-        result.append(CountryCommand(name: "Free points", description: "Free lunch!", effects: [.freePoints(points: 10)], cost: 0))
-        result.append(CountryCommand(name: "Climate conference", description: "Better luck next time", effects: [], cost: 100))
+        //result.append(CountryCommand(name: "Free points", description: "Free lunch!", effects: [.freePoints(points: 10)], cost: 0))
+        //result.append(CountryCommand(name: "Climate conference", description: "Better luck next time", effects: [], cost: 100))
         
         return result
     }

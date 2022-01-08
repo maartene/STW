@@ -25,6 +25,7 @@ struct GameController: RouteCollection {
             }
             gameGroup.group("policies") { policyGroup in
                 policyGroup.get(use: getPolicies)
+                policyGroup.get("all", use: getAllPolicies)
                 policyGroup.post(use: enactPolicy)
                 policyGroup.post("revoke", use: revokePolicy)
                 policyGroup.post("levelup", use: levelUpPolicy)
@@ -185,6 +186,10 @@ struct GameController: RouteCollection {
     struct CountryPolicyInfo: Content {
         let availablePolicies: [PolicyInfo]
         let activePolicies: [PolicyInfo]
+    }
+    
+    func getAllPolicies(req: Request) async throws -> [PolicyInfo] {
+        return AllPolicies.all.map(PolicyInfo.init)
     }
     
     func getPolicies(req: Request) async throws -> CountryPolicyInfo {

@@ -21,7 +21,7 @@
         <div class="m-3">
             <h1>
                 {{isoCountryCodeToFlagEmoji(gameData.countryCode)}} {{gameData.countryName}} 
-                <button class="btn btn-primary btn-sm"   v-on:click="refresh">Refresh</button>
+                <button class="btn btn-primary btn-sm"  v-on:click="refresh">Refresh</button>
             </h1>
         </div>
         <TabWrapper>

@@ -135,7 +135,7 @@ public enum PolicyCategory: String, Codable {
         case .emissionTarget:
             return 1
         case .economic:
-            return 1
+            return 2
         case .education:
             return 1
         case .political:
