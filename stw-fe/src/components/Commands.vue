@@ -22,7 +22,7 @@
                 <td>{{command.effectDescription}}</td>
                 <td>{{command.command.cost}}</td>
                 <td>
-                    <button class="btn btn-sm btn-success" v-on:click="executeCommand(command.command)">Execute</button>
+                    <button class="btn btn-sm btn-success" v-on:click="executeCommand({token, command})">Execute</button>
                 </td>
             </tr>
         </tbody>
@@ -31,21 +31,16 @@
 
 <script>
 const bootstrap = require('bootstrap');
+import { mapGetters, mapActions } from 'vuex';
 
 export default {
-    name: "ActivePolicies",
+    name: "Commands",
     props: {
-        commands: Array 
+        token: String
     },
-    emits: [
-        "executeCommand"
-    ],
+    computed: mapGetters(['commands']),
     methods: {
-        executeCommand(command) {
-            this.$emit('executeCommand', {
-                "command": command
-            });
-        }
+        ...mapActions(['executeCommand'])
     }, 
     created() {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
@@ -53,6 +48,7 @@ export default {
         tooltipTriggerList.map(function (tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl)
         })
+        console.log(this.token);
         //console.log(tooltipList.length)
     }
 }

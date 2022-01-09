@@ -27,7 +27,7 @@
                 <td>{{policy.effectDescription}}</td>
                 <td>{{policy.policy.baseCost}}</td>
                 <td>
-                    <button class="btn btn-sm btn-success" v-on:click="enactPolicy(policy.policy)">Activate</button>
+                    <button class="btn btn-sm btn-success" v-on:click="enactPolicy({token, policy})">Activate</button>
                 </td>
             </tr>
         </tbody>
@@ -37,21 +37,15 @@
 <script>
 
 const bootstrap = require('bootstrap');
+import {  mapGetters, mapActions } from 'vuex';
 
 export default {
     name: "InactivePolicies",
     props: {
-        inactivePolicies: Array 
+        token: String
     },
-    emits: [
-        "enactPolicy"
-    ],
+    computed: mapGetters(['inactivePolicies']),
     methods: {
-        enactPolicy(policy) {
-            this.$emit('enactPolicy', {
-                "policy": policy
-            });
-        }, 
         refresh() {
             var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
             //var tooltipList = 
@@ -62,7 +56,8 @@ export default {
         },
         policyTooltip(policy) {
             return `${policy.policy.description} <br> This policy is available because: <br> ${policy.conditionDescription}`
-        }
+        },
+        ...mapActions(['enactPolicy', 'fetchPolicies'])
     },
     updated() {
         this.refresh();

@@ -78,8 +78,8 @@ export default {
                 const edis = response.data.map(value => { return value.countryEDI })
                 const budgets = response.data.map(value => { return value.countryBudget })
 
-                const oneHalfDegrees = temps.map(() => { return 16.15})
-                const twoDegrees = temps.map(() => { return 16.65})
+                const oneHalfDegrees = temps.map(() => { return 15.25})
+                const twoDegrees = temps.map(() => { return 15.75})
 
                 const earthChartData = {
                     type: "line",

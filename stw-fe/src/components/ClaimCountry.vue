@@ -41,6 +41,7 @@ export default {
     ],
     methods: {
         claimCountry(country) {
+            console.log(this.STW_API_ENDPOINT);
             axios.post(`${this.STW_API_ENDPOINT}/game/country/claim/`, country, {
                 headers: {
                     "Authorization": `bearer ${this.token}`

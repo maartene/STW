@@ -1,5 +1,5 @@
 <template>
-    <div class="row">
+    <div class="row" v-if="gameData">
         <div class="col">
             <div class="card border-primary mb-3">
                 <div class="card-header">Earth
@@ -51,24 +51,22 @@
         </div>
     </div>
     <h5>Current effects of global warming</h5>
-    <p class="text-danger">{{gameData.earthEffectsDescription}}</p>
+    <p class="text-danger" v-if="gameData">{{gameData.earthEffectsDescription}}</p>
     <h5>Messages from around the Earth</h5>
     <ul class="list-group">
-        <li class="list-group-item" v-for="message in gameData.messages" :key="message">{{message}}</li>
+        <li class="list-group-item" v-for="(message, index) in messages" :key="index">{{message}}</li>
     </ul>
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 const bootstrap = require('bootstrap');
 
 export default {
     name: "Overview",
-    props: {
-        gameData: {
-            messages: [""]
-        }
-    }, 
-    created() {
+    computed: mapGetters(['gameData', 'messages']),
+    mounted() {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
                     //var tooltipList = 
         tooltipTriggerList.map(function (tooltipTriggerEl) {
