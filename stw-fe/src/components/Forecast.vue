@@ -1,23 +1,25 @@
 <template>
-    <p class="text-muted">Note: forecasts require manual <a href="#" v-on:click="buildCharts">refresh</a>, because of this computations required to update the forecasts.</p>
-    <h3>Earth forecasts</h3>
-    <canvas id="myChart" width="400" height="100"></canvas>
-    <p class="my-5"></p>
-    <h3>Country forecasts</h3>
-    <div class="row">
-        <div class="col"><canvas id="countryChart" width="100" height="100"></canvas></div>
-        <div class="col"><canvas id="countryWealthChart" width="100" height="100"></canvas></div>
+    <div>
+        <p class="text-muted">Note: forecasts require manual <a href="#" v-on:click="buildCharts">refresh</a>, because of this computations required to update the forecasts.</p>
+        <h3>Earth forecasts</h3>
+        <canvas id="myChart" width="400" height="100"></canvas>
+        <p class="my-5"></p>
+        <h3>Country forecasts</h3>
+        <div class="row">
+            <div class="col"><canvas id="countryChart" width="100" height="100"></canvas></div>
+            <div class="col"><canvas id="countryWealthChart" width="100" height="100"></canvas></div>
+        </div>
+        <div class="row my-3">
+            <div class="col"><canvas id="countryGiniChart" width="100" height="100"></canvas></div>
+            <div class="col"><canvas id="countryEdiChart" width="100" height="100"></canvas></div>
+        </div>
+        <div class="row my-3">
+            <div class="col"><canvas id="countryBudgetChart" width="100" height="100"></canvas></div>
+            <div class="col">t.b.d.</div>
+        </div>
+        <p class="my-3"></p>
+        <p><button class="btn btn-secondary" v-on:click="buildCharts">Refresh</button></p>
     </div>
-    <div class="row my-3">
-        <div class="col"><canvas id="countryGiniChart" width="100" height="100"></canvas></div>
-        <div class="col"><canvas id="countryEdiChart" width="100" height="100"></canvas></div>
-    </div>
-    <div class="row my-3">
-        <div class="col"><canvas id="countryBudgetChart" width="100" height="100"></canvas></div>
-        <div class="col">t.b.d.</div>
-    </div>
-    <p class="my-3"></p>
-    <button class="btn btn-secondary" v-on:click="buildCharts">Refresh</button>
 </template>
 
 <script>

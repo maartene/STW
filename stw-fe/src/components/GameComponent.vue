@@ -1,41 +1,43 @@
-!<template>
-    <div class="alert alert-primary d-flex align-items-center alert-dismissible fade show" role="alert" v-if="message != ''">
-        <img src="/img/bootstrap-icons/check-circle.svg" alt="Check circle">&nbsp;&nbsp;
-        <div>
-            {{message}}
-            <button type="button" class="btn-close" v-on:click="dismissMessage" aria-label="Close"></button>
+<template>
+    <div>
+        <div class="alert alert-primary d-flex align-items-center alert-dismissible fade show" role="alert" v-if="message != ''">
+            <img src="/img/bootstrap-icons/check-circle.svg" alt="Check circle">&nbsp;&nbsp;
+            <div>
+                {{message}}
+                <button type="button" class="btn-close" v-on:click="dismissMessage" aria-label="Close"></button>
+            </div>
         </div>
-    </div>
-    <div class="alert alert-warning d-flex align-items-center alert-dismissible fade show" role="alert" v-if="warningMessage != ''">
-        <img src="/img/bootstrap-icons/exclamation-circle.svg" alt="Exclamation circle">&nbsp;&nbsp;
-        <div>
-            {{warningMessage}}
-            <button type="button" class="btn-close" v-on:click="warningMessage = ''" aria-label="Close"></button>
+        <div class="alert alert-warning d-flex align-items-center alert-dismissible fade show" role="alert" v-if="warningMessage != ''">
+            <img src="/img/bootstrap-icons/exclamation-circle.svg" alt="Exclamation circle">&nbsp;&nbsp;
+            <div>
+                {{warningMessage}}
+                <button type="button" class="btn-close" v-on:click="warningMessage = ''" aria-label="Close"></button>
+            </div>
         </div>
-    </div>
-    <div v-if="shouldClaimCountry">
-        <ClaimCountry v-bind:token="token" @countryClaimed="countryClaimed"/>
-    </div>
-    <div class="border" v-else>
-    
-        <div class="m-3">
-            <h1>
-                {{isoCountryCodeToFlagEmoji(gameData.countryCode)}} {{gameData.countryName}} 
-            </h1>
+        <div v-if="shouldClaimCountry">
+            <ClaimCountry v-bind:token="token" @countryClaimed="countryClaimed"/>
         </div>
-        <TabWrapper>
-        <Tab title="Overview">
-            <Overview />
-        </Tab>
-        <Tab title="Policies">
-            <p class="my-3"></p>
-                <ActivePolicies v-bind:token="token"></ActivePolicies>
-            <p class="my-3"></p>
-            <InactivePolicies v-bind:token="token"></InactivePolicies>    
-        </Tab>
-        <Tab title="Commands"><Commands v-bind:token="token"/></Tab>
-        <Tab title="Forecast"><Forecast v-bind:token="token"></Forecast></Tab>
-        </TabWrapper>
+        <div class="border" v-else>
+        
+            <div class="m-3">
+                <h1>
+                    {{isoCountryCodeToFlagEmoji(gameData.countryCode)}} {{gameData.countryName}} 
+                </h1>
+            </div>
+            <TabWrapper>
+            <Tab title="Overview">
+                <Overview />
+            </Tab>
+            <Tab title="Policies">
+                <p class="my-3"></p>
+                    <ActivePolicies v-bind:token="token"></ActivePolicies>
+                <p class="my-3"></p>
+                <InactivePolicies v-bind:token="token"></InactivePolicies>    
+            </Tab>
+            <Tab title="Commands"><Commands v-bind:token="token"/></Tab>
+            <Tab title="Forecast"><Forecast v-bind:token="token"></Forecast></Tab>
+            </TabWrapper>
+        </div>
     </div>
 </template>
 
