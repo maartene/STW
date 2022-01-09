@@ -86,6 +86,7 @@ export default {
         {
             return String.fromCodePoint(...[...country.toUpperCase()].map(c => c.charCodeAt() + 0x1F1A5));
         },
+        
         hasCountry() {
             axios.get(`${this.STW_API_ENDPOINT}/game/country/hasCountry`, {
                 headers: {
