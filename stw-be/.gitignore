@@ -9,3 +9,4 @@ db.sqlite
 Package.resolved
 .env
 Secrets
+dockerbuild.sh

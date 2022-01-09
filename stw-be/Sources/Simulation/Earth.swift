@@ -34,6 +34,9 @@ public struct Earth {
     /// the concentration of carbon in the atmosphere in the base year (in ppm).
     static let BASE_CONCENTRATION_2015 = 399.4
     
+    /// the average global temperature in the pre-industrial age (in degrees C)
+    static let BASE_TEMPERATURE_PRE_INDUSTRIAL = 13.75
+    
     /// the average global temperature in the base year (in degrees C)
     static let BASE_TEMPERATURE_2015 = 14.65
     
@@ -121,7 +124,7 @@ public struct Earth {
     
     /// (Adverse) effects from increased global warming. These effects become more severe as the global average temperature increases.
     public var currentEffectsOfTemperatureChange: [Effect] {
-        let deltaT = currentTemperature - Self.BASE_TEMPERATURE_2015
+        let deltaT = currentTemperature - Self.BASE_TEMPERATURE_PRE_INDUSTRIAL
         switch deltaT {
         case 0 ..< 0.2:
             return [.extraGDP(percentage: -0.1)]
