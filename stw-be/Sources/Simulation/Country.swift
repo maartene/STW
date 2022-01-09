@@ -64,6 +64,9 @@ public struct Country: Codable {
     /// The current active policies
     public var activePolicies = [Policy]()
     
+    /// The currently committed policies
+    public var comittedPolicies = [Policy]()
+    
     /// The current available country points for the country - this is your main currency for enacting policies and levelling up.
     public var countryPoints = 1
     
