@@ -35,6 +35,7 @@
                 <InactivePolicies v-bind:token="token"></InactivePolicies>    
             </Tab>
             <Tab title="Commands"><Commands v-bind:token="token"/></Tab>
+            <Tab title="Diplomacy"><Diplomacy v-bind:token="token"/></Tab>
             <Tab title="Forecast"><Forecast v-bind:token="token"></Forecast></Tab>
             </TabWrapper>
         </div>
@@ -55,6 +56,7 @@ import Commands from './Commands.vue';
 import Forecast from './Forecast.vue';
 import Overview from './Overview.vue';
 import ClaimCountry from './ClaimCountry.vue'
+import Diplomacy from './Diplomacy.vue';
 
 
 export default {
@@ -68,8 +70,10 @@ export default {
         Commands,
         Forecast,
         Overview,
+        Diplomacy,
 
-        ClaimCountry
+        ClaimCountry,
+        
 
     }, 
     data() {

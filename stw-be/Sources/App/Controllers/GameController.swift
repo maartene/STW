@@ -16,7 +16,7 @@ struct GameController: RouteCollection {
         let game = routes.grouped("game")
         let protectedGame = game.grouped(UserToken.authenticator())
         
-        protectedGame.group("country") { gameGroup in
+        try protectedGame.group("country") { gameGroup in
             gameGroup.get("hasCountry", use: hasCountry)
             gameGroup.get(use: getFullData)
             gameGroup.post(use: executeCommand)
@@ -37,6 +37,8 @@ struct GameController: RouteCollection {
                 claimGroup.get(use: getUnclaimedCountries)
                 claimGroup.post(use: claimCountry)
             }
+            
+            try gameGroup.register(collection: DiplomacyController())
         }
     }
     
@@ -350,5 +352,7 @@ struct GameController: RouteCollection {
         return "success"
         
     }
+    
+    // MARK: Diplomacy
     
 }

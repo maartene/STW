@@ -23,7 +23,7 @@
                     <td>{{policy.effectDescription}}</td>
                     <td>{{policy.upgradeCost}}</td>
                     <td>
-                        <button class="btn btn-sm btn-danger" v-on:click="revokePolicy({ token, policy })">Revoke</button>&nbsp;
+                        <button class="btn btn-sm btn-danger" v-if="!policy.policy.committed" v-on:click="revokePolicy({ token, policy })">Revoke</button>&nbsp;
                         <button class="btn btn-sm btn-success" v-on:click="levelupPolicy({ token, policy })">Improve</button>
                     </td>
                 </tr>

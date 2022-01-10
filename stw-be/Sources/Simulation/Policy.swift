@@ -34,11 +34,14 @@ public struct Policy: Codable, Equatable {
 
     /// the category this policy falls under. Used to determine the maximum number of policies of a certain category a country can have enacted.
     public let category: PolicyCategory
-
+    
+    /// Indicates wether this is a committed policy (i.e. one that cannot be revoked).
+    public var committed = false
+    
     /// For Codable confomance
     enum CodingKeys: CodingKey {
         case name, description, level, effects, baseCost, //priority,
-             condition, category
+             condition, category, committed
     }
     
     /// Codable `encode` function.
@@ -53,6 +56,7 @@ public struct Policy: Codable, Equatable {
         try container.encode(baseCost, forKey: .baseCost)
         try container.encode(condition, forKey: .condition)
         try container.encode(category, forKey: .category)
+        try container.encode(committed, forKey: .committed)
     }
     
     /// Codable initializer.
@@ -67,6 +71,7 @@ public struct Policy: Codable, Equatable {
         baseCost = try values.decode(Int.self, forKey: .baseCost)
         condition = (try? values.decode(Condition.self, forKey: .condition)) ?? .empty
         category = (try? values.decode(PolicyCategory.self, forKey: .category)) ?? .miscelaneous
+        committed = (try? values.decode(Bool.self, forKey: .committed)) ?? false
     }
 
 

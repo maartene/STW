@@ -64,6 +64,12 @@ The following endpoints are protected by bearer token authentication:
 * `GET game/country/forecast/` : retrieves forecasted versions of the current earth and country in JSON format. 
 * `GET game/country/claim/` : retrieves a list of (max) 20 random unclaimed countries, for the player to select from.
 * `POST game/country/claim/` : pass an unclaimed country to link it to the player.
+* `GET game/country/diplomacy/` : retrieve the suggestions associated with your country.
+* `GET game/country/diplomacy/options` : retrieves the suggestions this country can make to other countries to commit to enact a policy.
+* `POST game/country/diplomacy/` : suggest a diplomacy option to another country.
+* `POST game/country/diplomacy/:suggestionID/accept` : accept the suggestion with id `suggestionID` if you are the target of the suggestion.
+* `POST game/country/diplomacy/:suggestionID/refuse` : refuse the suggestion with id `suggestionID` if you are the target of the suggestion.
+* `POST game/country/diplomacy/:suggestionID/revoke` : revoke the suggestion with id `suggestionID` if you own the suggestion.
 
 ## Playing the game
 ### Basics
@@ -72,6 +78,16 @@ The following endpoints are protected by bearer token authentication:
 * Interact with your country by enacting, revoking and improving (level up) policies. The effects of the various policies are shown both on the 'Policies' tab, as well as in the 'Forecast' tab (to see their effect over time).
 * Enacting and leveling up policies requires 'Country Points'. Your Country receives country points at each update, which happens every real world hour. You can see how many you receive during the next update in the 'Overview' tab.
 * The Earth updates every day at 12:00. During this update all the emissions of all countries are tallied and affect how much warmer (or cooler!) the Earth gets.
+
+### Advanced
+#### Diplomacy
+* You can suggest to other countries to enact a policy together. This has the added benefit that you receive extra country point for each policy you enacted together;
+* However, enacting a policy is a long term commitment: you can't revoke policies from accepted suggestions;
+* You can both send and receive suggestions. But you can only send out at most 3 suggestions;
+* _More diplomacy options to come._
+
+#### Commands
+_Coming soon._
 
 ### Hints
 * Try claming a country with a large carbon emission first, to have more impact on the world as a whole;
