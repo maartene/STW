@@ -10,6 +10,20 @@ import XCTVapor
 
 final class EarthTests: XCTestCase {
     
+    var earth: Earth {
+        Earth()
+    }
+    
+    var warmedEarth: Earth {
+        var earth = Earth()
+        
+        for _ in earth.currentYear ..< 2050 {
+            earth.tick(yearlyEmission: 10)
+        }
+        
+        return earth
+    }
+    
     func testUpdateIncreasesYear() {
         var earth = Earth()
         let baseYear = earth.currentYear
@@ -50,5 +64,9 @@ final class EarthTests: XCTestCase {
         print(Earth.BASE_TEMPERATURE_2015, earth.currentTemperature)
         XCTAssertEqual(forecastToYear, earth.currentYear)
         XCTAssertEqual(forecastedTemp, earth.currentTemperature)
+    }
+    
+    func testGlobalWarmingHasNegativeEffects() {
+        XCTAssertGreaterThan(warmedEarth.currentEffectsOfTemperatureChange.count, earth.currentEffectsOfTemperatureChange.count)
     }
 }

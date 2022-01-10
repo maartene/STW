@@ -63,10 +63,7 @@ public struct Country: Codable {
     
     /// The current active policies
     public var activePolicies = [Policy]()
-    
-    /// The currently committed policies
-    public var comittedPolicies = [Policy]()
-    
+        
     /// The current available country points for the country - this is your main currency for enacting policies and levelling up.
     public var countryPoints = 1
     
@@ -131,6 +128,9 @@ public struct Country: Codable {
     public mutating func tick(in earth: Earth) {
         countryPoints += 1
         
+        // Get extra country points for each comitted policy.
+        countryPoints += fib(committedPolicies.count)
+        
         // Apply global warming effects.
         for effect in earth.currentEffectsOfTemperatureChange {
             self = effect.applyEffect(to: self, in: earth)
@@ -172,6 +172,11 @@ public struct Country: Codable {
         AllPolicies.getPolicyFor(self)
     }
     
+    /// Policies that you commit too. Committed policies cannot be revoked, but bring extra country points.
+    public var committedPolicies: [Policy] {
+        activePolicies.filter { $0.committed }
+    }
+    
     /// The policies this country can enact.
     /// The available policies for this country, without the ones that are already enacted.
     public var enactablePolicies: [Policy] {
@@ -182,10 +187,11 @@ public struct Country: Codable {
     
     /// Enact a `Policy`.
     /// - Parameter policy: the `Policy` to enact.
+    /// - Parameter committed: wether you commit to this policy. Default: false
     /// - Returns: an updated country and a message indicating the result of the action.
-    public func enactPolicy(_ policy: Policy) -> (result: Bool, updatedCountry: Country, resultMessage: String) {
+    public func enactPolicy(_ policy: Policy, committed: Bool = false) -> (result: Bool, updatedCountry: Country, resultMessage: String) {
         guard policy.baseCost <= countryPoints else {
-           return (false, self, "Not enough country points to enact policy \(policy).")
+            return (false, self, "Not enough country points to enact policy \(policy.name).")
         }
         
         var updatedCountry = self
@@ -196,16 +202,23 @@ public struct Country: Codable {
             return (false, self, "You already have the maximum (\(limit)) number of policies in the \(policy.category) category active.")
         }
         
-        updatedCountry.countryPoints -= policy.baseCost
-        updatedCountry.activePolicies.append(policy)
+        var updatedPolicy = policy
+        updatedPolicy.committed = committed
+        
+        updatedCountry.countryPoints -= updatedPolicy.baseCost
+        updatedCountry.activePolicies.append(updatedPolicy)
 
-        return (true, updatedCountry, "Successfully enacted policy '\(policy.name)'")
+        return (true, updatedCountry, "Successfully enacted policy '\(updatedPolicy.name)'")
     }
     
     /// Revoke a `Policy`
     /// - Parameter policy: the `Policy` to revoke
     /// - Returns: an updated country and a message indicating the result of the action.
     public func revokePolicy(_ policy: Policy) -> (result: Bool, updatedCountry: Country, resultMessage: String) {
+        guard policy.committed == false else {
+            return (false, self, "You committed to policy '\(policy.name)'. It cannot be revoked.")
+        }
+        
         guard let index = activePolicies.firstIndex(of: policy) else {
             return (false, self, "Policy '\(policy.name)' is not enacted.")
         }

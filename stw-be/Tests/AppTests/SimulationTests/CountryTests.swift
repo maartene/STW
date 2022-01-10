@@ -7,6 +7,7 @@
 
 @testable import Simulation
 import XCTVapor
+import XCTest
 
 final class CountryTests: XCTestCase {
     
@@ -101,5 +102,33 @@ final class CountryTests: XCTestCase {
         policyCountry.tick(in: earth)
         
         XCTAssertGreaterThan(policyCountry.countryPoints, country.countryPoints)
+    }
+    
+    func testCommittedPolicyCannotBeRevoked() throws {
+        let country = netherlands
+        
+        var policy = Policy(name: "testpolicy", effects: [.freePoints(points: 1)], baseCost: 0)
+        
+        let policyCountry = country.enactPolicy(policy, committed: true)
+        
+        policy.committed = true
+        
+        let revokePolicy = policyCountry.updatedCountry.revokePolicy(policy)
+        XCTAssertEqual(revokePolicy.resultMessage, "You committed to policy 'testpolicy'. It cannot be revoked.")
+        XCTAssertFalse(revokePolicy.result)
+    }
+    
+    
+    func testCommittedCountriesGetExtraCountryPoints() {
+        var country = netherlands
+        
+        let policy = Policy(name: "testpolicy", effects: [.freePoints(points: 1)], baseCost: 0)
+        
+        var policyCountry = country.enactPolicy(policy, committed: true).updatedCountry
+        
+        country.tick(in: earth)
+        policyCountry.tick(in: earth)
+        
+        XCTAssertGreaterThan(policyCountry.countryPoints, netherlands.countryPoints)
     }
 }

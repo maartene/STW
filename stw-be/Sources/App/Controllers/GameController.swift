@@ -16,7 +16,7 @@ struct GameController: RouteCollection {
         let game = routes.grouped("game")
         let protectedGame = game.grouped(UserToken.authenticator())
         
-        protectedGame.group("country") { gameGroup in
+        try protectedGame.group("country") { gameGroup in
             gameGroup.get("hasCountry", use: hasCountry)
             gameGroup.get(use: getFullData)
             gameGroup.post(use: executeCommand)
@@ -37,11 +37,8 @@ struct GameController: RouteCollection {
                 claimGroup.get(use: getUnclaimedCountries)
                 claimGroup.post(use: claimCountry)
             }
-            gameGroup.group("diplomacy") { diplomacyGroup in
-                diplomacyGroup.get(use: getDiplomacySuggestions)
-                diplomacyGroup.get("options", use: getDiplomacyOptions)
-                diplomacyGroup.post(use: suggestDiplomacyOption)
-            }
+            
+            try gameGroup.register(collection: DiplomacyController())
         }
     }
     
@@ -358,109 +355,4 @@ struct GameController: RouteCollection {
     
     // MARK: Diplomacy
     
-    struct DiplomacyOption: Content {
-        let countryModel: CountryModel
-        var policies: [Policy]
-    }
-    
-    func getDiplomacyOptions(req: Request) async throws -> [DiplomacyOption] {
-        let playerAndCountry = try await getCountryAndPlayer(req: req)
-        
-        let countryModel = playerAndCountry.countryModel
-        
-        // first, get all countries in the world
-        let otherCountries = try await CountryModel.query(on: req.db).filter(\.$earthID, .equal, countryModel.earthID).all()
-            .filter {
-                $0.id != countryModel.id // Filter out only the other countries
-                && $0.playerID != nil // and the countries that are claimed by a player
-            }
-        
-        var diplomacyOptions = [DiplomacyOption]()
-        
-        otherCountries.forEach { otherCountry in
-            otherCountry.country.enactablePolicies.forEach { enactablePolicy in
-                if countryModel.country.enactablePolicies.contains(enactablePolicy) {
-                    if let index = diplomacyOptions.firstIndex(where: { $0.countryModel.id == otherCountry.id }) {
-                        diplomacyOptions[index].policies.append(enactablePolicy)
-                    } else {
-                        diplomacyOptions.append(DiplomacyOption(countryModel: otherCountry, policies: [enactablePolicy]))
-                    }
-                }
-            }
-        }
-        
-        return diplomacyOptions
-    }
-    
-    struct DiplomacySuggestionInput: Content {
-        let targetID: UUID
-        let policyName: String
-    }
-    
-    func suggestDiplomacyOption(req: Request) async throws -> String {
-        print(req.content)
-        
-        let playerAndCountry = try await getCountryAndPlayer(req: req)
-        
-        let suggestion = try req.content.decode(DiplomacySuggestionInput.self)
-
-        guard let targetCountryModel = try await CountryModel.find(suggestion.targetID, on: req.db) else {
-            req.logger.warning("Could not find countryModel with id: \(suggestion.targetID)")
-            throw Abort(.notFound)
-        }
-                
-        guard let ownerID = playerAndCountry.countryModel.id else {
-            req.logger.error("Owner \(playerAndCountry.countryModel.id?.uuidString ?? "nil") was nil. This should not happen.")
-            throw Abort(.internalServerError)
-        }
-        
-        guard let policy = AllPolicies.all.first(where: {$0.name == suggestion.policyName}) else {
-            req.logger.warning("Could not find policy with name \(suggestion.policyName)")
-            throw Abort(.notFound)
-        }
-         
-        let diplomaticSuggestion = DiplomacySuggestion(ownerID: ownerID, targetID: suggestion.targetID, policy: policy)
-        
-        try await diplomaticSuggestion.save(on: req.db)
-        
-        return "Your suggestion to enact policy \(policy.name) to \(targetCountryModel.country.name) was sent succesfully."
-    }
-    
-    struct DiplomacySuggestionOutput: Content {
-        internal init(ownerID: UUID, ownerName: String, policy: Policy) {
-            self.ownerID = ownerID
-            self.ownerName = ownerName
-            self.policy = policy
-        }
-        
-        let ownerID: UUID
-        let ownerName: String
-        let policy: Policy
-    }
-    
-    func getDiplomacySuggestions(req: Request) async throws -> [DiplomacySuggestionOutput] {
-        let playerAndCountry = try await getCountryAndPlayer(req: req)
-        
-        // find DiplomacySuggestions for this country
-        let suggestions = try await DiplomacySuggestion.query(on: req.db).filter(\.$targetID, .equal, playerAndCountry.countryModel.id!).all()
-        
-        var result = [DiplomacySuggestionOutput]()
-        
-        for suggestion in suggestions {
-            let owner = try await CountryModel.find(suggestion.ownerID, on: req.db)
-            result.append(DiplomacySuggestionOutput(ownerID: suggestion.ownerID, ownerName: owner?.country.name ?? "unknown", policy: suggestion.policy))
-        }
-        
-        return result
-    }
-    
-    // TODO: accept and deny suggestions
-    // TODO: retrieve own suggestions
-    // TODO: revoke own suggestions
-    
-//    func acceptDiplomacySuggestion(req: Request) async throws -> String {
-//        let playerAndCountry = try await getCountryAndPlayer(req: req)
-//
-//
-//    }
 }
