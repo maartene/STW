@@ -20,16 +20,24 @@ public func configure(_ app: Application) throws {
     // cors middleware should come before default error middleware using `at: .beginning`
     app.middleware.use(cors, at: .beginning)
     
-    try app.databases.use(.mongo(
-        connectionString: Environment.get("STW_BACKEND_DB_URL") ?? "mongodb://localhost:27017/vapor_database"
-    ), as: .mongo)
+    let queuesDatabase: MongoDatabase
     
-    
-    let mongoDatabase = try MongoDatabase.lazyConnect(Environment.get("STW_BACKEND_DB_URL") ?? "mongodb://localhost:27017/vapor_database", on: app.eventLoopGroup.next())
+    if app.environment == .testing {
+        try app.databases.use(.mongo(connectionString: "mongodb://localhost:27017/vapor_database"), as: .mongo)
+        
+        queuesDatabase = try MongoDatabase.lazyConnect("mongodb://localhost:27017/vapor_database", on: app.eventLoopGroup.next())
+    }
+    else {
+        try app.databases.use(.mongo(
+            connectionString: Environment.get("STW_BACKEND_DB_URL") ?? "mongodb://localhost:27017/vapor_database"
+        ), as: .mongo)
+        
+        queuesDatabase = try MongoDatabase.lazyConnect(Environment.get("STW_BACKEND_DB_URL") ?? "mongodb://localhost:27017/vapor_database", on: app.eventLoopGroup.next())
+    }
     
     // Setup Indexes for the Job Schema for performance (Optional)
-    try app.queues.setupMongo(using: mongoDatabase)
-    app.queues.use(.mongodb(mongoDatabase))
+    try app.queues.setupMongo(using: queuesDatabase)
+    app.queues.use(.mongodb(queuesDatabase))
 
     app.queues.schedule(UpdateEarthTask()).daily().at(12, 00)
     app.queues.schedule(CleanupTask()).daily().at(00, 01)

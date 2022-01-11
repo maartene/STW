@@ -63,7 +63,7 @@ const actions = {
 
     async fetchMessages( { commit } ) {
         const response = await axios.get(`${STW_API_ENDPOINT}/logs/${state.gameData.earthID}/`)
-        console.log(response.data)
+        //console.log(response.data)
         commit('setMessages', response.data);
     },
 

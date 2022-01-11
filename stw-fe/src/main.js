@@ -13,3 +13,5 @@ app.mount('#app')
 app.config.globalProperties.STW_API_ENDPOINT = process.env.VUE_APP_STW_API_URL || "http://localhost:8000"
 
 //app.config.devtools = true;
+
+import 'bootstrap/dist/js/bootstrap.js'

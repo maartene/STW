@@ -22,10 +22,10 @@ struct AuthenticationController: RouteCollection {
             return token
         }
         
-//        let tokenProtected = playerRoutes.grouped(UserToken.authenticator())
-//        tokenProtected.get("me") { req -> Player in
-//            try req.auth.require(Player.self)
-//        }
+        let tokenProtected = playerRoutes.grouped(UserToken.authenticator())
+        tokenProtected.get("checkLogin") { req -> Bool in
+            (try? req.auth.require(Player.self)) != nil
+        }
         
         //playerRoutes.get(use: index)
         playerRoutes.post(use: create)
@@ -105,3 +105,5 @@ extension Player {
         )
     }
 }
+
+extension Bool: Content { }

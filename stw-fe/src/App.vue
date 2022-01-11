@@ -1,5 +1,6 @@
 <template>
-  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">
       <a href="/"><img src="/img/logo_small_400px.png" alt="Save the World logo" width="200"/></a>
     </div>
@@ -29,6 +30,8 @@
       <a href="https://www.thedreamweb.eu" target="_blank"><img src="/img/dreamweblogo.png" width="32"/></a>&nbsp;&nbsp;&copy; <a href="https://www.thedreamweb.eu" target="_blank">thedreamweb.eu</a>, 2022. Support: <span class="text-muted">support @ letssavetheworld.club</span>
     </div>
   </footer>
+  </div>
+  
   
 </template>
 

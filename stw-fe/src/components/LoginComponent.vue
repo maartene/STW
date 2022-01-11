@@ -79,6 +79,7 @@ export default {
     methods: {
         login() {
             const token = Buffer.from(`${this.email}:${this.password}`, 'utf8').toString('base64')
+            console.log(token)
             axios.post(`${this.STW_API_ENDPOINT}/players/login/`, {}, {
                 headers: {
                     'Authorization': `Basic ${token}` 

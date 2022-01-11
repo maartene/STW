@@ -6,11 +6,12 @@ func routes(_ app: Application) throws {
         return "It's alive!"
     }
 
-struct Alive:Content {
-let message: String
-}
+    struct Alive: Content {
+        let message: String
+    }
+    
     app.get("alive") { req -> Alive in
-	return Alive(message: "OK") 
+        return Alive(message: "OK")
     }
 
     try app.register(collection: EarthModelController())
