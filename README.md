@@ -34,6 +34,10 @@ This opens XCode. Before running, please consider:
 
 Now you can run the server using Command-R.
 
+#### Running tests
+* Some tests are available already;
+* For performance reasons (in particular restarting connections to the database), the API tests assume a local running MongoDB instance on port 27017 (connection string: `mongodb://localhost:27017/vapor_database`).
+
 ### Running the front-end
 To run the front-end locally, you need `node.js` and `npm` installed.
 ```
