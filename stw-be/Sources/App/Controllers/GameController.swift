@@ -265,6 +265,7 @@ struct GameController: RouteCollection {
     struct Forecast: Content {
         let year: Int
         let currentTemperature: Double
+        let currentTemperatureBAU: Double
         let currentConcentration: Double
         let countryEmissionsPerCapita: Double
         let countryWealthPerCapita: Double
@@ -289,16 +290,24 @@ struct GameController: RouteCollection {
         let totalEmissions = emissions.reduce(0, +)
 
         let earthForecasts = earthModel.earth.forecastSeries(to: forecastYear, yearlyEmissions: totalEmissions)
+        let earthForecastsBAU = Earth().forecastSeries(to: forecastYear, yearlyEmissions: Earth.BASE_GLOBAL_EMISSIONS_2015)
+        
+        let last50yearsBAU = earthForecastsBAU[earthForecastsBAU.count - earthForecasts.count ..< earthForecastsBAU.count].map {$0}
+        
         let countryForecasts = countryModel.country.forecastSeries(to: forecastYear, in: earthModel.earth)
 
         assert(earthForecasts.count == countryForecasts.count)
+        assert(earthForecasts.count == last50yearsBAU.count)
 
         var result = [Forecast]()
         for i in 0 ..< earthForecasts.count {
             let earth = earthForecasts[i]
+            let earthBUA = last50yearsBAU[i]
+            assert(earth.currentYear == earthBUA.currentYear)
             let forecast = Forecast(
                 year: earth.currentYear, 
-                currentTemperature: earth.currentTemperature, 
+                currentTemperature: earth.currentTemperature,
+                currentTemperatureBAU: last50yearsBAU[i].currentTemperature,
                 currentConcentration: earth.currentConcentration, 
                 countryEmissionsPerCapita: countryForecasts[i].yearlyEmissions / Double(countryForecasts[i].population),
                 countryWealthPerCapita: countryForecasts[i].GDP * 1000.0 / Double(countryForecasts[i].population) / 365.0,

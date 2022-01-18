@@ -74,6 +74,7 @@ export default {
 
                 const labels = response.data.map(value => { return value.year })
                 const temps = response.data.map(value => { return value.currentTemperature })
+                const tempsBAU = response.data.map(value => { return value.currentTemperature })
                 const emissions = response.data.map(value => { return value.countryEmissionsPerCapita * 1000000000 })
                 const wealths = response.data.map(value => { return value.countryWealthPerCapita })
                 const ginis = response.data.map(value => { return value.countryGini })
@@ -89,7 +90,7 @@ export default {
                         "labels": labels,
                         datasets: [
                             {
-                                label: "Average temperature",
+                                label: "Forecast",
                                 data: temps,
                                 borderColor: [
                                     'rgba(255,50,50,1)'
@@ -98,6 +99,17 @@ export default {
                                     'rgba(255,50,50,0.5)'
                                 ],
                                 borderWidth: 1
+                            },
+                            {
+                                label: "Business as Usual",
+                                data: tempsBAU,
+                                borderColor: [                                   
+                                    'rgba(255,150,150,1)'
+                                ],
+                                backgroundColor: [
+                                    'rgba(255,150,150,0.5)'
+                                ],
+                                pointRadius: 0
                             },
                             {
                                 label: "1.5 degrees rise",
