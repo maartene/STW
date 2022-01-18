@@ -72,9 +72,10 @@ export default {
                     this.budgetChart.destroy();
                 }
 
+                
                 const labels = response.data.map(value => { return value.year })
                 const temps = response.data.map(value => { return value.currentTemperature })
-                const tempsBAU = response.data.map(value => { return value.currentTemperature })
+                const tempsBAU = response.data.map(value => { return value.currentTemperatureBAU })
                 const emissions = response.data.map(value => { return value.countryEmissionsPerCapita * 1000000000 })
                 const wealths = response.data.map(value => { return value.countryWealthPerCapita })
                 const ginis = response.data.map(value => { return value.countryGini })
@@ -109,7 +110,7 @@ export default {
                                 backgroundColor: [
                                     'rgba(255,150,150,0.5)'
                                 ],
-                                pointRadius: 0
+                                borderWidth: 1
                             },
                             {
                                 label: "1.5 degrees rise",
