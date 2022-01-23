@@ -21,7 +21,7 @@
         
             <div class="m-3">
                 <h1>
-                    {{isoCountryCodeToFlagEmoji(gameData.countryCode)}} {{gameData.countryName}} 
+                    {{isoCountryCodeToFlagEmoji(gameData.countryCode)}} {{gameData.countryName}}
                 </h1>
             </div>
             <TabWrapper>
@@ -79,7 +79,8 @@ export default {
     data() {
         return {
             warningMessage: "",
-            shouldClaimCountry: false
+            shouldClaimCountry: false,
+            timer: ""
         }
     },
     computed: mapGetters(['gameData', 'message']),
@@ -102,6 +103,7 @@ export default {
             .then(response => {
                 if (response.data == true) {
                     this.refresh();
+                    this.timer = setInterval(this.refresh, 600000); 
                 } else {
                     this.shouldClaimCountry = true;
                 }

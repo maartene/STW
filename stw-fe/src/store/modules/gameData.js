@@ -150,6 +150,11 @@ const actions = {
         await dispatch('fetchGameData', token);
         await dispatch('fetchMessages', token);
         commit('setMessage', response.data);
+    },
+
+    async refresh( { dispatch }, token) {
+        await dispatch('fetchGameData', token);
+        await dispatch('fetchMessages', token);
     }
 };
 
