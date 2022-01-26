@@ -14,6 +14,7 @@ The application consists of two parts:
 * You need a MongoDB, either local or on a cloud service like Mongo Atlas. Mongo Atlas has a free tier that works quite well for (testing) this project.
 * Setting the environment variable `STW_BACKEND_DB_URL` to your MongoDB connection string.
 * By default, the API backend listens on port 8000. If you want to change this, you can do so by setting the environment variable: `STW_BACKEND_PORT`.
+* By default, the API does not set any CORS headers, meaning that if your front-end is hosted on a different hostname/port combination as the backend (common when doing local development), set the `STW_SETUP_CORS` environment variable to any value. )_WARNING: this setups allows all hosts, operations and headers_
 
 #### Linux:
 ```

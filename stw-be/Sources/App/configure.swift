@@ -20,6 +20,9 @@ public func configure(_ app: Application) throws {
         let cors = CORSMiddleware(configuration: corsConfiguration)
         // cors middleware should come before default error middleware using `at: .beginning`
         app.middleware.use(cors, at: .beginning)
+        app.logger.notice("CORS is setup to allow everything from everywhere.")
+    } else {
+        app.logger.notice("Skipping CORS setup.")
     }
     
     let queuesDatabase: MongoDatabase
