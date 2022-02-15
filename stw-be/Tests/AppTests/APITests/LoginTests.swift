@@ -8,6 +8,13 @@
 @testable import App
 import XCTVapor
 
+/// these tests assume a local MongoDB database instance
+/// Cheatsheet:
+/// * Install (1/2): `brew tap mongodb/brew`
+/// * Install (2/2): `brew install mongodb-community@5.0`
+/// * Start: `brew services start mongodb-community@5.0`
+/// * Stop: `brew services stop mongodb-community@5.0`
+
 final class LoginTests: XCTestCase {
     var app: Application!
     

@@ -130,6 +130,14 @@ fileprivate func initializeDatabase(db: Database) {
             try countryModels.forEach { try $0.save(on: db).wait() }
             db.logger.info("Finished saving countries.")
             
+            db.logger.info("Started resetting players.")
+            let players = try Player.query(on: db).all().wait()
+            try players.forEach { player in
+                player.countryID = nil
+                try player.save(on: db).wait()
+            }
+            db.logger.info("Finished resetting players.")
+            
             db.logger.notice("Finished initiazing database.")
             
         } else {

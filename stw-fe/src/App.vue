@@ -8,12 +8,12 @@
   <div class="container-flex m-3 p-3">
     <div class="alert alert-dismissible alert-secondary mx-1 p-3">
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      <h4 class="alert-heading">This is pre-release software!</h4>
+      <h4 class="alert-heading">Simulation reset on March 1st</h4>
       <ul>
-        <li>This software can go down to push a new version at any time, you may lose your progress at any time.</li>
-        <li>Please file any bugs as a <a class="alert-link" href="https://github.com/maartene/STW/issues">GitHub issue</a>.</li>
+        <li>On March 1, the simulation will reset to the year 2015.</li>
+        <li>All country and earth progress will be lost.</li>
+        <li>Your account will remain, although you will need to choose a new country.</li>
       </ul>
-      <p class="mb-0">Most up-to-date source code can be found on <a href="https://github.com/maartene/STW" class="alert-link">https://github.com/maartene/STW</a>.</p>
     </div>
 
     <transition name="fade">
