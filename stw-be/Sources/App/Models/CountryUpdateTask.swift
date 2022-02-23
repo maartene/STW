@@ -32,7 +32,9 @@ struct UpdateCountryTask: AsyncScheduledJob {
                 .filter(\.$earthID, .equal, earthModel.id!).all()
             
             for countryModel in countryModels {
-                countryModel.country.tick(in: earthModel.earth)
+                if let result = countryModel.country.tick(in: earthModel.earth) {
+                    try await EarthLog.logMessage(result, for: countryModel.earthID, on: context.application.db)
+                }
                 try await countryModel.save(on: context.application.db)
             }
         }

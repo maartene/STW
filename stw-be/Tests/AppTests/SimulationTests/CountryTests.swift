@@ -131,4 +131,56 @@ final class CountryTests: XCTestCase {
         
         XCTAssertGreaterThan(policyCountry.countryPoints, netherlands.countryPoints)
     }
+    
+    func testPoliciesGetAutomaticallyRevoked() {
+        let country = netherlands
+        
+        let policy = Policy(name: "testpolicy", effects: [.extraEDI(percentage: 2)], baseCost: 0, condition: .lessThanOrEqualEDI(ranking: .A))
+        
+        var policyCountry = country.enactPolicy(policy).updatedCountry
+        XCTAssertTrue(policyCountry.activePolicies.contains(policy))
+        
+        var maxTries = 1000
+        while policyCountry.activePolicies.contains(policy) && maxTries >= 0 {
+            if let result = policyCountry.tick(in: earth) {
+                print(result)
+            }
+            maxTries -= 1
+        }
+            
+        XCTAssertFalse(policyCountry.activePolicies.contains(policy))
+    }
+    
+    func testForceRevokePolicy() {
+        let country = netherlands
+        
+        let policy = Policy(name: "testpolicy", effects: [.extraEDI(percentage: 2)], baseCost: 0)
+        
+        let comittedCountry = country.enactPolicy(policy, committed: true).updatedCountry
+        XCTAssertTrue(comittedCountry.activePolicies.contains(where: {$0.name == policy.name }))
+        XCTAssertTrue(comittedCountry.committedPolicies.contains(where: {$0.name == policy.name }))
+        
+        let forceRevokeCountry = comittedCountry.revokePolicy(policy, force: true).updatedCountry
+        XCTAssertFalse(forceRevokeCountry.activePolicies.contains(where: {$0.name == policy.name }))
+        XCTAssertFalse(forceRevokeCountry.committedPolicies.contains(where: {$0.name == policy.name }))
+    }
+    
+    func testPoliciesGetAutomaticallyRevokedEvenWhenComitted() {
+        let country = netherlands
+        
+        let policy = Policy(name: "testpolicy", effects: [.extraEDI(percentage: 2)], baseCost: 0, condition: .lessThanOrEqualEDI(ranking: .A))
+        
+        var policyCountry = country.enactPolicy(policy, committed: true).updatedCountry
+        XCTAssertTrue(policyCountry.activePolicies.contains(where: {$0.name == policy.name }))
+        
+        var maxTries = 1000
+        while policyCountry.activePolicies.contains(where: {$0.name == policy.name }) && maxTries >= 0 {
+            if let result = policyCountry.tick(in: earth) {
+                print(result)
+            }
+            maxTries -= 1
+        }
+            
+        XCTAssertFalse(policyCountry.activePolicies.contains(where: {$0.name == policy.name }))
+    }
 }

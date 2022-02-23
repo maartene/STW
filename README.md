@@ -85,9 +85,12 @@ The following endpoints are protected by bearer token authentication:
 * The Earth updates every day at 12:00. During this update all the emissions of all countries are tallied and affect how much warmer (or cooler!) the Earth gets.
 
 ### Advanced
+* If the condition for a policy is no longer met, then it is automatically revoked.
+
 #### Diplomacy
 * You can suggest to other countries to enact a policy together. This has the added benefit that you receive extra country point for each policy you enacted together;
 * However, enacting a policy is a long term commitment: you can't revoke policies from accepted suggestions;
+* The only way to get rid of such a policy is if the condition for it no longer applies. In that case, it is automatically revoked;
 * You can both send and receive suggestions. But you can only send out at most 3 suggestions;
 * _More diplomacy options to come._
 
@@ -106,7 +109,7 @@ _Coming soon._
 Apache 2.0 license.
 
 ### Known issues
-* As of December 17, 2021. The Xcode 13.2 version from the App Store has a bug in it that prevents it from working with Swift Package Manager projects. The version you download directly from Apples website works though.  
+* none as far as I'm aware  
 
 ### Licensed assets:
 * vue.js framework (https://v3.vuejs.org) and vuex (https://next.vuex.vuejs.org)

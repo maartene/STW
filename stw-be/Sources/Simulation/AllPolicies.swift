@@ -30,37 +30,45 @@ public struct AllPolicies {
         result.append(Policy(name: "Promote eco-tourism", description: nil,
                             effects: [
                                 .extraEmissions(percentage: 0.1), .extraGDP(percentage: 1)
-                            ], baseCost: 5, condition: .greaterThanOrEqualEDI(ranking: .C), policyCategory: .economic))
+                            ], baseCost: 5, condition: .and([.greaterThanOrEqualEDI(ranking: .C), .lessThanOrEqualWealth(ranking: .A)]), policyCategory: .economic))
         
         result.append(Policy(name: "Promote high tech industry", description: nil,
-                             effects: [.extraGDP(percentage: 1)], baseCost: 5, condition: .greaterThanOrEqualEDI(ranking: .A), policyCategory: .economic))
+                             effects: [.extraGDP(percentage: 1)], baseCost: 5, condition: .and([.greaterThanOrEqualEDI(ranking: .A), .lessThanOrEqualWealth(ranking: .A)]), policyCategory: .economic))
         
         result.append(Policy(name: "Accept foreign aid", description: nil,
-                             effects: [.extraGDP(percentage: 1), .extraGini(points: 0.01)], baseCost: 5, condition: .lessThanOrEqualWealth(ranking: .E), policyCategory: .economic))
+                             effects: [.extraGDP(percentage: 1), .extraGini(points: 0.01)], baseCost: 5, condition: .and([.lessThanOrEqualWealth(ranking: .E), .lessThanOrEqualWealth(ranking: .A)]), policyCategory: .economic))
         
-        result.append(Policy(name: "Increase base interest", description: "Have your central bank increase the base interest rate. This tends to decrease income, but also increase equality as it harms those with assets more than others.", effects: [.extraGDP(percentage: -1), .extraGini(points: -2)], baseCost: 8, condition: .greaterThanOrEqualWealth(ranking: .E), policyCategory: .economic))
+        result.append(Policy(name: "Increase base interest", description: "Have your central bank increase the base interest rate. This tends to decrease income, but also increase equality as it harms those with assets more than others.", effects: [.extraGDP(percentage: -1), .extraGini(points: -2)], baseCost: 8, condition: .and([.greaterThanOrEqualWealth(ranking: .E), .lessThanOrEqualEquality(ranking: .A)]),
+                             policyCategory: .economic))
         
-        result.append(Policy(name: "Decrease base interest", description: "Have your central bank decrease the base interest rate. This tends to increase income, but also increase inequality as it favours those who have assets.", effects: [.extraGDP(percentage: 1), .extraGini(points: 2)], baseCost: 2, policyCategory: .economic))
+        result.append(Policy(name: "Decrease base interest", description: "Have your central bank decrease the base interest rate. This tends to increase income, but also increase inequality as it favours those who have assets.", effects: [.extraGDP(percentage: 1), .extraGini(points: 2)], baseCost: 2,
+                             condition: .lessThanOrEqualWealth(ranking: .A), policyCategory: .economic))
         
         // budget
-        result.append(Policy(name: "Austerity", effects: [.extraBudget(points: 0.1), .extraGDP(percentage: -0.5)], baseCost: 3, condition: .greaterThanOrEqualWealth(ranking: .E)))
+        result.append(Policy(name: "Austerity", effects: [.extraBudget(points: 0.1), .extraGDP(percentage: -0.5)], baseCost: 3, condition:
+                                    .and([.greaterThanOrEqualWealth(ranking: .E),
+                                          .lessThanOrEqualBudget(ranking: .A)]), policyCategory: .economic))
         
         // education
         result.append(Policy(name: "Free schools", description: nil, effects: [
-            .extraGDP(percentage: -2), .extraEDI(percentage: 1)], baseCost: 5, condition: .greaterThanOrEqualBudget(ranking: .A), policyCategory: .education))
+            .extraGDP(percentage: -2), .extraEDI(percentage: 1)], baseCost: 5, condition: .and([.greaterThanOrEqualBudget(ranking: .A), .lessThanOrEqualEDI(ranking: .A)])
+                             , policyCategory: .education))
         
         result.append(Policy(name: "Private schools", effects: [.extraEDI(percentage: 2), .extraGini(points: 1)], baseCost: 10, condition:
-                                    .and([.greaterThanOrEqualEDI(ranking: .D), .lessThanOrEqualEquality(ranking: .E)]), policyCategory: .education))
+                                    .and([.greaterThanOrEqualEDI(ranking: .D), .lessThanOrEqualEquality(ranking: .E),
+                                          .lessThanOrEqualEDI(ranking: .A)]), policyCategory: .education))
         
         result.append(Policy(name: "Ivy League Schools", effects: [.extraEDI(percentage: 5), .extraGini(points: 3)], baseCost: 25, condition:
-                                    .and([.greaterThanOrEqualEDI(ranking: .C), .lessThanOrEqualEquality(ranking: .D)]), policyCategory: .education))
+                                    .and([.greaterThanOrEqualEDI(ranking: .C), .lessThanOrEqualEquality(ranking: .D),
+                                          .lessThanOrEqualEDI(ranking: .A)]), policyCategory: .education))
         
         // increase equality
         result.append(Policy(name: "Progressive tax system", description: "De sterkste schouders dragen de grootste lasten", effects: [.extraGini(points: -0.1)], baseCost: 10, condition: .lessThanOrEqualEquality(ranking: .D), policyCategory: .economic))
         
-        result.append(Policy(name: "Universal Base Income", effects: [.extraGini(points: -0.5)], baseCost: 25, condition: .greaterThanOrEqualBudget(ranking: .C), policyCategory: .economic))
+        result.append(Policy(name: "Universal Base Income", effects: [.extraGini(points: -0.5)], baseCost: 25, condition: .and([.greaterThanOrEqualBudget(ranking: .C), .lessThanOrEqualEquality(ranking: .A)]) , policyCategory: .economic))
         
-        result.append(Policy(name: "Free healthcare", effects: [.extraGini(points: -0.2), .extraBudget(points: -0.1)], baseCost: 5, condition: .greaterThanOrEqualBudget(ranking: .C), policyCategory: .economic))
+        result.append(Policy(name: "Free healthcare", effects: [.extraGini(points: -0.2), .extraBudget(points: -0.1)], baseCost: 5, condition:
+                                    .and([.greaterThanOrEqualBudget(ranking: .C), .lessThanOrEqualEquality(ranking: .A)]), policyCategory: .economic))
         
         // increases political points
         result.append(Policy(name: "Tax cuts", description: nil, effects: [.freePoints(points: 1), .extraGDP(percentage: -2)], baseCost: 1, condition: .greaterThanOrEqualBudget(ranking: .B), policyCategory: .political))

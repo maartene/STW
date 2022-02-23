@@ -123,9 +123,11 @@ public struct Country: Codable {
     
     // MARK: Update
     
-    /// Updates the country
+    @discardableResult
+    /// /// Updates the country
     /// - Parameter earth: the `Earth` context for the country.
-    public mutating func tick(in earth: Earth) {
+    /// - Returns: If during the update messages are created, these are returned as a string.
+    public mutating func tick(in earth: Earth) -> String? {
         countryPoints += 1
         
         // Get extra country points for each comitted policy.
@@ -136,9 +138,22 @@ public struct Country: Codable {
             self = effect.applyEffect(to: self, in: earth)
         }
         
+        var resultMessages = [String]()
         // Apply policy effects
         for policy in activePolicies {
-            self = policy.applyEffects(to: self, in: earth)
+            if policy.condition.evaluate(for: self) {
+                self = policy.applyEffects(to: self, in: earth)
+            } else {
+                self = self.revokePolicy(policy, force: true).updatedCountry
+                resultMessages.append("Policy \(policy.name) is no longer valid, so it is automatically revoked.")
+            }
+            
+        }
+        
+        if resultMessages.count > 0 {
+            return resultMessages.joined(separator: "\n")
+        } else {
+            return nil
         }
     }
     
@@ -214,12 +229,12 @@ public struct Country: Codable {
     /// Revoke a `Policy`
     /// - Parameter policy: the `Policy` to revoke
     /// - Returns: an updated country and a message indicating the result of the action.
-    public func revokePolicy(_ policy: Policy) -> (result: Bool, updatedCountry: Country, resultMessage: String) {
-        guard policy.committed == false else {
+    public func revokePolicy(_ policy: Policy, force: Bool = false) -> (result: Bool, updatedCountry: Country, resultMessage: String) {
+        guard policy.committed == false || force else {
             return (false, self, "You committed to policy '\(policy.name)'. It cannot be revoked.")
         }
         
-        guard let index = activePolicies.firstIndex(of: policy) else {
+        guard let index = activePolicies.firstIndex(where: {$0.name == policy.name }) else {
             return (false, self, "Policy '\(policy.name)' is not enacted.")
         }
         

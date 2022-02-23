@@ -1,0 +1,33 @@
+{
+    "configurations": [
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Debug Run (stw-be)",
+            "program": "${workspaceFolder:STW}/stw-be/.build/debug/Run",
+            "args": [],
+            "cwd": "${workspaceFolder:STW}/stw-be",
+            "preLaunchTask": "swift: Build Debug Run (stw-be)"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Release Run (stw-be)",
+            "program": "${workspaceFolder:STW}/stw-be/.build/release/Run",
+            "args": [],
+            "cwd": "${workspaceFolder:STW}/stw-be",
+            "preLaunchTask": "swift: Build Release Run (stw-be)"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Test stw-be",
+            "program": "/Applications/Xcode.app/Contents/Developer/usr/bin/xctest",
+            "args": [
+                ".build/debug/stw-bePackageTests.xctest"
+            ],
+            "cwd": "${workspaceFolder:STW}/stw-be",
+            "preLaunchTask": "swift: Build All (stw-be)"
+        }
+    ]
+}
