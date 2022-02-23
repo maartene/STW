@@ -183,4 +183,17 @@ final class CountryTests: XCTestCase {
             
         XCTAssertFalse(policyCountry.activePolicies.contains(where: {$0.name == policy.name }))
     }
+    
+    func testPolicyStaysAfterUpdate() {
+        let country = netherlands
+        
+        let policy = Policy(name: "testpolicy", effects: [.extraEDI(percentage: 2)], baseCost: 0, policyCategory: .emissionTarget)
+        
+        var policyCountry = country.enactPolicy(policy).updatedCountry
+        XCTAssertTrue((policyCountry.activePolicies.contains(policy)))
+        
+        print(policyCountry.tick(in: earth) ?? "")
+        
+        XCTAssertTrue((policyCountry.activePolicies.contains(policy)))
+    }
 }

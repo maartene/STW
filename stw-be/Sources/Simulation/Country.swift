@@ -145,7 +145,7 @@ public struct Country: Codable {
                 self = policy.applyEffects(to: self, in: earth)
             } else {
                 self = self.revokePolicy(policy, force: true).updatedCountry
-                resultMessages.append("Policy \(policy.name) is no longer valid, so it is automatically revoked.")
+                resultMessages.append("Policy \(policy.name) is no longer valid for country \(self.name), so it is automatically revoked.")
             }
             
         }

@@ -18,7 +18,7 @@ public struct AllPolicies {
         var result = [Policy]()
         
         // Reduction targets
-        result.append(Policy(name: "Set emission reduction target", description: "Sets an  emission target (very modest at first). You can make it more stringent by levelling it up.", effects: [.changeEmissionsTowardsTarget(percentageReductionPerYear: 1, target: 10)], baseCost: 1, condition: .not(.hasActivePolicy(policyName: "Set emission reduction target")), policyCategory: .emissionTarget))
+        result.append(Policy(name: "Set emission reduction target", description: "Sets an  emission target (very modest at first). You can make it more stringent by levelling it up.", effects: [.changeEmissionsTowardsTarget(percentageReductionPerYear: 1, target: 10)], baseCost: 1, policyCategory: .emissionTarget))
         
         // increase wealth
         result.append(Policy(name: "Subsidise fossil fuels", description: nil,
