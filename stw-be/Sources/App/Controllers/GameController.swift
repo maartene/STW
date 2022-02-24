@@ -209,8 +209,13 @@ struct GameController: RouteCollection {
     
     func enactPolicy(req: Request) async throws -> String {
         let countryModel = try await getCountryAndPlayer(req: req).countryModel
-        
+    
         let policy = try req.content.decode(Policy.self)
+        
+        guard countryModel.country.enactablePolicies.contains(policy) else {
+            req.logger.warning("Received request to enact a policy that is not enactable by country \(countryModel.country.name): \(policy)")
+            throw Abort(.badRequest)
+        }
         
         let result = countryModel.country.enactPolicy(policy)
         

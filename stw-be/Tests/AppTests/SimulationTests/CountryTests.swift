@@ -8,6 +8,7 @@
 @testable import Simulation
 import XCTVapor
 import XCTest
+import App
 
 final class CountryTests: XCTestCase {
     
