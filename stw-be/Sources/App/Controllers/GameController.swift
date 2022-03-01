@@ -214,7 +214,7 @@ struct GameController: RouteCollection {
         
         guard countryModel.country.enactablePolicies.contains(policy) else {
             req.logger.warning("Received request to enact a policy that is not enactable by country \(countryModel.country.name): \(policy)")
-            throw Abort(.badRequest)
+            return "Mismatch between requested policy and policy as known by your country."
         }
         
         let result = countryModel.country.enactPolicy(policy)
