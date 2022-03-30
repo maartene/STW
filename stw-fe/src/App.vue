@@ -8,13 +8,9 @@
   <div class="container-flex m-3 p-3">
     <div class="alert alert-dismissible alert-secondary mx-1 p-3">
       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-      <h4 class="alert-heading">Simulation reset</h4>
-      <ul>
-        <li>The simulation is reset to the year 2015.</li>
-        <li>All country and earth progress is lost.</li>
-        <li>Your account will remain, although you will need to choose a new country.</li>
-        <li>During the last run, we we're able to postpone 2 degrees temperature rise by 30 years! Can we prevent it during the next run?</li>
-      </ul>
+      <h4 class="alert-heading">Deployment offline</h4>
+      <p>This application will go offline April 1st.</p>
+      <p>You can still find the app source on <a href="https://github.com/maartene/STW">GitHub</a></p>
     </div>
 
     <transition name="fade">
